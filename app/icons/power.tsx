@@ -1,6 +1,6 @@
 import type { IconProps } from "~/types/icons";
 
-const Teacher = ({ size, className }: IconProps) => {
+const Power = ({ size, className }: IconProps) => {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,11 +14,10 @@ const Teacher = ({ size, className }: IconProps) => {
       strokeLinejoin="round"
       className={className}
     >
-      <path d="M18 20a6 6 0 0 0-12 0" />
-      <circle cx="12" cy="10" r="4" />
-      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2v10" />
+      <path d="M18.4 6.6a9 9 0 1 1-12.77.04" />
     </svg>
   );
 };
 
-export default Teacher;
+export default Power;
