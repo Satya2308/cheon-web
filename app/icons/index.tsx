@@ -9,6 +9,7 @@ import BeanOff from "./beanoff";
 import ChevronFirst from "./chevronFirst";
 import ChevronLast from "./chevronLast";
 import ChevronRight from "./chevronRight";
+import X from "./x";
 
 export {
   Teacher,
@@ -22,4 +23,5 @@ export {
   ChevronFirst,
   ChevronLast,
   ChevronRight,
+  X,
 };
