@@ -17,7 +17,7 @@ export default function SideMenu({ pathname }: Props) {
     },
     {
       title: "ឆ្នាំ",
-      href: `${basePath}/years`,
+      href: `${basePath}/yearss`,
       Icon: Year,
     },
   ];
