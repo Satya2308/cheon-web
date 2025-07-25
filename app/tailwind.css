@@ -1,12 +1,155 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@plugin "daisyui";
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
+@plugin "daisyui/theme" {
+  name: "plumpi-light";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
 
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(96% 0 0);
+  --color-base-300: oklch(91% 0 0);
+  --color-base-content: oklch(20% 0 0);
+  --color-primary: #1e293b;
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(77% 0.152 181.912);
+  --color-secondary-content: oklch(27% 0.046 192.524);
+  --color-accent: oklch(0% 0 0);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(26% 0 0);
+  --color-neutral-content: oklch(98% 0 0);
+  --color-info: oklch(62% 0.214 259.815);
+  --color-info-content: oklch(97% 0.014 254.604);
+  --color-success: oklch(70% 0.14 182.503);
+  --color-success-content: oklch(98% 0.014 180.72);
+  --color-warning: oklch(79% 0.184 86.047);
+  --color-warning-content: oklch(98% 0.026 102.212);
+  --color-error: oklch(64% 0.246 16.439);
+  --color-error-content: oklch(96% 0.015 12.422);
+  --radius-selector: 1rem;
+  --radius-field: 12px;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 1;
+}
+
+@plugin "daisyui/theme" {
+  name: "plumpi-dark";
+  default: false;
+  prefersdark: true;
+  color-scheme: "dark";
+
+  --color-base-100: oklch(13% 0.028 261.692);
+  --color-base-200: oklch(21% 0.034 264.665);
+  --color-base-300: oklch(27% 0.033 256.848);
+  --color-base-content: oklch(96% 0.003 264.542);
+  --color-primary: rgba(9, 31, 251, 1);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(60% 0.126 221.723);
+  --color-secondary-content: oklch(98% 0.019 200.873);
+  --color-accent: oklch(55% 0.288 302.321);
+  --color-accent-content: oklch(97% 0.014 308.299);
+  --color-neutral: oklch(21% 0.034 264.665);
+  --color-neutral-content: oklch(98% 0.002 247.839);
+  --color-info: oklch(62% 0.214 259.815);
+  --color-info-content: oklch(97% 0.014 254.604);
+  --color-success: oklch(70% 0.14 182.503);
+  --color-success-content: oklch(98% 0.014 180.72);
+  --color-warning: oklch(79% 0.184 86.047);
+  --color-warning-content: oklch(98% 0.026 102.212);
+  --color-error: oklch(63% 0.237 25.331);
+  --color-error-content: oklch(97% 0.013 17.38);
+  --radius-selector: 1rem;
+  --radius-field: 12px;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 1;
+}
+
+/* Input Styles - Dark Mode Compatible */
+.input {
+  color: var(--color-base-content);
+  background-color: var(--color-base-100);
+  border: 1px solid var(--color-base-300);
+  outline: none;
+  border-radius: 8px;
+  height: 48px;
+  padding: 0 1rem;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  z-index: 1;
+}
+
+.select {
+  outline: none;
+}
+
+.btn {
+  border-radius: 6px;
+}
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-primary) 20%, transparent);
+  z-index: 1;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+.input:disabled {
+  color: var(--color-base-content);
+  opacity: 0.5;
+  background-color: var(--color-base-200);
+  cursor: not-allowed;
+}
+
+/* Input with left padding for icons */
+.input.pl-10 {
+  padding-left: 2.5rem;
+}
+
+/* Input with right padding for icons */
+.input.pr-12 {
+  padding-right: 3rem;
+}
+
+/* Ensure icons stay above input */
+.input-icon {
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.input-icon-clickable {
+  position: absolute;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+input[type="checkbox"] {
+  color: white;
+}
+
+.label-text {
+  color: var(--color-base-content);
+}
+
+.textarea {
+  outline: none;
+}
+.textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--color-primary) 20%, transparent);
+  z-index: 1;
 }

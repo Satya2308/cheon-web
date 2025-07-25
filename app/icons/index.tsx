@@ -10,6 +10,7 @@ import ChevronFirst from "./chevronFirst";
 import ChevronLast from "./chevronLast";
 import ChevronRight from "./chevronRight";
 import X from "./x";
+import Year from "./year";
 
 export {
   Teacher,
@@ -24,4 +25,5 @@ export {
   ChevronLast,
   ChevronRight,
   X,
+  Year,
 };

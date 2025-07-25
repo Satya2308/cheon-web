@@ -1,4 +1,5 @@
-import { Teacher } from "~/icons";
+import clsx from "clsx";
+import { Teacher, Year } from "~/icons";
 import type { IconProps } from "~/types/icons";
 
 interface Props {
@@ -6,13 +7,18 @@ interface Props {
 }
 
 export default function SideMenu({ pathname }: Props) {
-  const basePath = "/admin/";
+  const basePath = "/admin";
 
   const menus = [
     {
-      title: "Teachers",
-      href: `${basePath}`,
+      title: "គ្រូ",
+      href: `${basePath}/teachers`,
       Icon: Teacher,
+    },
+    {
+      title: "ឆ្នាំ",
+      href: `${basePath}/years`,
+      Icon: Year,
     },
   ];
 
@@ -21,20 +27,22 @@ export default function SideMenu({ pathname }: Props) {
   };
 
   const item = (title: string, href: string, Icon: React.FC<IconProps>) => {
-    const active = isActive(href) ? "active" : "";
+    const active = isActive(href) ? "bg-blue-600 text-white" : "";
     return (
-      <a href={href} title={title} className={active}>
-        <Icon size={18} />
-        <span>{title}</span>
+      <a href={href} title={title} className={clsx("space-x-2", active)}>
+        <Icon size={20} />
+        <span className="font-semibold">{title}</span>
       </a>
     );
   };
 
   return (
     <div className="p-2">
-      <ul className="menu">
+      <ul className="menu space-y-2 w-full">
         {menus.map((menu) => (
-          <li key={menu.title}>{item(menu.title, menu.href, menu.Icon)}</li>
+          <li key={menu.title} className="text-lg">
+            {item(menu.title, menu.href, menu.Icon)}
+          </li>
         ))}
       </ul>
     </div>
