@@ -55,10 +55,9 @@ export default function AdminTeachers() {
                 <>
                   <table className="table table-auto">
                     <thead className="uppercase bg-base-200 text-lg text-black">
-                      <tr>
-                        <th>លេខរៀង</th>
-                        <th>ឈ្មោះ</th>
+                      <tr className="font-semibold">
                         <th>លេខកូដ</th>
+                        <th>ឈ្មោះ</th>
                         <th>លេខទូរស័ព្ទ</th>
                         <th>មុខវិជ្ជាបង្រៀន</th>
                         <th>សកម្មភាព</th>
@@ -67,9 +66,8 @@ export default function AdminTeachers() {
                     <tbody className="text-lg">
                       {teachers.map((item) => (
                         <tr key={item.id} className="hover">
-                          <td className="text-base font-bold">{item.id}</td>
-                          <td>{item.name}</td>
                           <td className="text-base">{item.code}</td>
+                          <td>{item.name}</td>
                           <td className="text-base">{item.user.phone}</td>
                           <td>{item.subject}</td>
                           <td>
