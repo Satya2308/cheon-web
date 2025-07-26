@@ -1,21 +1,21 @@
-import ChevronLeft from "./chevronLeft";
-import Teacher from "./teacher";
-import Power from "./power";
-import Eye from "./eye";
-import Pen from "./pen";
-import Trash2 from "./trash2";
-import Plus from "./plus";
-import BeanOff from "./beanoff";
-import ChevronFirst from "./chevronFirst";
-import ChevronLast from "./chevronLast";
-import ChevronRight from "./chevronRight";
-import X from "./x";
-import Year from "./year";
+import ChevronLeft from './chevronLeft'
+import Teacher from './teacher'
+import Logout from './logout'
+import Eye from './eye'
+import Pen from './pen'
+import Trash2 from './trash2'
+import Plus from './plus'
+import BeanOff from './beanoff'
+import ChevronFirst from './chevronFirst'
+import ChevronLast from './chevronLast'
+import ChevronRight from './chevronRight'
+import X from './x'
+import Year from './year'
 
 export {
   Teacher,
   ChevronLeft,
-  Power,
+  Logout,
   Eye,
   Pen,
   Trash2,
@@ -26,4 +26,4 @@ export {
   ChevronRight,
   X,
   Year,
-};
+}

@@ -1,48 +1,46 @@
-import {
-  Form,
-  Link,
-  useActionData,
-  useNavigate,
-  useNavigation,
-} from "@remix-run/react";
-import type { ActionFunctionArgs, MetaFunction } from "@vercel/remix";
-import { redirect } from "@vercel/remix";
-import axios from "axios";
-import { Forehead } from "~/component";
-// import PasswordInput from "~/components/ui/passwordInput";
-import fieldError from "~/helpers/fieldError";
-import { X } from "~/icons";
-import { authApi } from "~/utils/axios";
-import { validateCreateTeacher } from "~/zod/teacher";
-// import { UserService } from "~/services";
-// import type { ICreateUser } from "~/types/user";
-// import { UserValidator } from "~/validators";
+import { Form, Link, useActionData, useNavigate } from '@remix-run/react'
+import type { ActionFunctionArgs, MetaFunction } from '@vercel/remix'
+import { redirect } from '@vercel/remix'
+import axios from 'axios'
+import fieldError from '~/helpers/fieldError'
+import { X } from '~/icons'
+import { authApi } from '~/utils/axios'
+import { validateCreateTeacher } from '~/zod/teacher'
+import { CreateTeacherResponse, ValidationErrorResponse } from './type'
 
 export const handle = {
-  title: "New Teacher",
+  title: 'គ្រូ',
   backable: true,
-};
+}
 
 export const meta: MetaFunction = () => {
-  return [{ title: handle.title, backable: handle.backable }];
-};
+  return [{ title: handle.title, backable: handle.backable }]
+}
 
 export async function action({ request }: ActionFunctionArgs) {
-  const payload = await request.formData();
-  const { data, error } = await validateCreateTeacher(payload);
-  if (!data) return { error, user: null };
-  const res = await authApi.post("/teacher", data);
-  if(res.status === 201) return redirect("/admin/teachers")
-  return {};
+  const payload = await request.formData()
+  const { data, error } = await validateCreateTeacher(payload)
+  if (!data) return { error }
+  try {
+    const res = await authApi.post<CreateTeacherResponse>('/teacher', data)
+    if (res.status === 201) return redirect('/admin/teachers')
+  } catch (err) {
+    if (axios.isAxiosError(err)) {
+      const status = err.response?.status
+      if (status === 400)
+        return { error: err.response?.data?.message as ValidationErrorResponse }
+      if (status === 404) throw new Response('Not found', { status: 404 })
+      throw new Response('Server error', { status: 500 })
+    }
+    throw new Response('Unexpected error', { status: 500 })
+  }
 }
 
 export default function CreateTeacher() {
-  const navigation = useNavigation();
-  const navigate = useNavigate();
-  const actionData = useActionData<typeof action>();
+  const navigate = useNavigate()
+  const actionData = useActionData<typeof action>()
   const error = actionData?.error
-  // const isSubmitting = navigation.formAction === "/admin/teachers/new";
-  // const error = actionData?.error;
+  const errorObj = error && typeof error === 'object' ? error : null
 
   return (
     <dialog className="modal modal-open">
@@ -66,7 +64,7 @@ export default function CreateTeacher() {
                     placeholder="ឈ្មោះ"
                     name="name"
                   />
-                  {error?.name && fieldError(error.name[0])}
+                  {errorObj?.name && fieldError(errorObj.name[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -78,7 +76,7 @@ export default function CreateTeacher() {
                     placeholder="លេខកូដ"
                     name="code"
                   />
-                  {error?.code && fieldError(error.code[0])}
+                  {errorObj?.code && fieldError(errorObj.code[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -90,36 +88,7 @@ export default function CreateTeacher() {
                     placeholder="លេខទូរស័ព្ទ"
                     name="phone"
                   />
-                  {error?.phone && fieldError(error.phone[0])}
-                </fieldset>
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend leading-relaxed text-base">
-                    លេខសម្ងាត់
-                  </legend>
-                  <input
-                    type="text"
-                    className="input w-full"
-                    placeholder="លេខសម្ងាត់"
-                    name="password"
-                  />
-                  {error?.password && fieldError(error.password[0])}
-                </fieldset>
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend leading-relaxed text-base font-semibold">
-                    ភេទ
-                  </legend>
-                  <select className="select" name="gender">
-                    <option value="FEMALE">ស្រី</option>
-                    <option value="MALE">ប្រុស</option>
-                  </select>
-                  {error?.gender && fieldError(error.gender[0])}
-                </fieldset>
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend leading-relaxed text-base">
-                    ថ្ងៃកំណើត
-                  </legend>
-                  <input type="date" className="input" name="dob" />
-                  {error?.dob && fieldError(error.dob[0])}
+                  {errorObj?.phone && fieldError(errorObj.phone[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -131,7 +100,24 @@ export default function CreateTeacher() {
                     placeholder="មុខវិជ្ជាបង្រៀន"
                     name="subject"
                   />
-                  {error?.subject && fieldError(error.subject[0])}
+                  {errorObj?.subject && fieldError(errorObj.subject[0])}
+                </fieldset>
+                <fieldset className="fieldset">
+                  <legend className="fieldset-legend leading-relaxed text-base font-semibold">
+                    ភេទ
+                  </legend>
+                  <select className="select" name="gender">
+                    <option value="FEMALE">ស្រី</option>
+                    <option value="MALE">ប្រុស</option>
+                  </select>
+                  {errorObj?.gender && fieldError(errorObj.gender[0])}
+                </fieldset>
+                <fieldset className="fieldset">
+                  <legend className="fieldset-legend leading-relaxed text-base">
+                    ថ្ងៃកំណើត
+                  </legend>
+                  <input type="date" className="input" name="dob" />
+                  {errorObj?.dob && fieldError(errorObj.dob[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -143,7 +129,7 @@ export default function CreateTeacher() {
                     placeholder="ក្របខណ្ឌ"
                     name="krobkan"
                   />
-                  {error?.krobkan && fieldError(error.krobkan[0])}
+                  {errorObj?.krobkan && fieldError(errorObj.krobkan[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -155,7 +141,7 @@ export default function CreateTeacher() {
                     placeholder="ឯកទេសទី​ ​១"
                     name="profession1"
                   />
-                  {error?.profession1 && fieldError(error.profession1[0])}
+                  {errorObj?.profession1 && fieldError(errorObj.profession1[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -167,7 +153,7 @@ export default function CreateTeacher() {
                     placeholder="ឯកទេសទី ​២"
                     name="profession2"
                   />
-                  {error?.profession2 && fieldError(error.profession2[0])}
+                  {errorObj?.profession2 && fieldError(errorObj.profession2[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
@@ -179,7 +165,7 @@ export default function CreateTeacher() {
                     placeholder="ឋានន្តរស័ក្ត"
                     name="rank"
                   />
-                  {error?.rank && fieldError(error.rank[0])}
+                  {errorObj?.rank && fieldError(errorObj.rank[0])}
                 </fieldset>
               </div>
               <div className="mt-10 flex gap-2">
@@ -187,7 +173,7 @@ export default function CreateTeacher() {
                   បង្កើត
                 </button>
                 <button
-                  className="btn btn-ghost"
+                  className="btn btn-ghost w-32"
                   onClick={() => navigate(-1)}
                   type="button"
                 >
@@ -199,5 +185,5 @@ export default function CreateTeacher() {
         </main>
       </div>
     </dialog>
-  );
+  )
 }

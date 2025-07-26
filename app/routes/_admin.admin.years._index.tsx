@@ -1,33 +1,30 @@
-import { Await } from "@remix-run/react";
-import type {
-  MetaFunction,
-} from "@vercel/remix";
-import { format } from "date-fns";
-import { Suspense } from "react";
-import { EmptyState, LoadingUI, Pagination } from "~/component";
-import { Eye, Pen, Plus, Trash2 } from "~/icons";
+import { Await } from '@remix-run/react'
+import type { MetaFunction } from '@vercel/remix'
+import { format } from 'date-fns'
+import { Suspense } from 'react'
+import { EmptyState, LoadingUI, Pagination } from '~/component'
+import { Eye, Pen, Plus, Trash2 } from '~/icons'
 
 export const handle = {
-  title: "Teachers",
-};
+  title: 'Teachers',
+}
 
 export const meta: MetaFunction = () => {
-  return [{ title: handle.title }];
-};
+  return [{ title: handle.title }]
+}
 
 export default function AdminTeachers() {
-
   return (
     <>
       <header
         className={[
-          "flex",
-          "items-center",
-          "justify-between",
-          "border-b",
-          "border-b-base-200",
-          "pb-5",
-        ].join(" ")}
+          'flex',
+          'items-center',
+          'justify-between',
+          'border-b',
+          'border-b-base-200',
+          'pb-5',
+        ].join(' ')}
       >
         <div />
         <a
@@ -112,5 +109,5 @@ export default function AdminTeachers() {
         </Await>
       </Suspense> */}
     </>
-  );
+  )
 }

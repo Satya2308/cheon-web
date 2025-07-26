@@ -1,28 +1,28 @@
-import { Outlet, useLocation, useMatches } from "@remix-run/react";
-import { SideMenu } from "~/component";
-import { ChevronLeft, Power } from "~/icons";
+import { Outlet, useLocation, useMatches } from '@remix-run/react'
+import { SideMenu } from '~/component'
+import { ChevronLeft, Logout } from '~/icons'
 
 export default function AdminLayout() {
-  const location = useLocation();
-  const matches = useMatches();
-  const m = matches.slice(-1)[0]; // last item
-  const h = m.handle as { title?: string; backref?: string } | undefined;
-  const title = h?.title ?? "";
+  const location = useLocation()
+  const matches = useMatches()
+  const m = matches.slice(-1)[0] // last item
+  const h = m.handle as { title?: string; backref?: string } | undefined
+  const title = h?.title ?? ''
 
   const user = {
-    firstName: "John",
-    lastName: "Doe",
-    email: "john.doe@example.com",
-    avatar: "/avatar.png",
-    role: "admin",
-  };
+    firstName: 'John',
+    lastName: 'Doe',
+    email: 'john.doe@example.com',
+    avatar: '/avatar.png',
+    role: 'admin',
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
       <aside className="w-60 bg-base-200">
         <header className="border-b border-b-base-300">
           <div className="h-14 flex justify-between items-center p-4">
-            <div className="flex max-w-32 text-blue-800 text-2xl font-semibold">
+            <div className="flex max-w-32 text-sky-900 text-2xl font-semibold">
               បឹងកេងកង
             </div>
           </div>
@@ -40,18 +40,17 @@ export default function AdminLayout() {
                   <ChevronLeft size={23} />
                 </a>
               )}
-              <h2 className="text-lg">{title}</h2>
+              <h2 className="text-2xl text-sky-800 font-semibold">{title}</h2>
             </div>
             <div className="text-right">
               {user && (
-                <div className="inline-flex gap-2 items-center">
-                  <span>Welcome {user.firstName}</span>
+                <div className="mr-4 text-red-500">
                   <a
-                    className="btn btn-square btn-sm btn-ghost"
+                    className="btn btn-square btn-sm btn-ghost hover:text-red-600"
                     href="/logout"
                     title="Logout"
                   >
-                    <Power size={14} />
+                    <Logout size={20} />
                   </a>
                 </div>
               )}
@@ -65,5 +64,5 @@ export default function AdminLayout() {
         </main>
       </div>
     </div>
-  );
+  )
 }

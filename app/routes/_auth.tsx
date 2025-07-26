@@ -1,4 +1,4 @@
-import { Outlet } from "@remix-run/react";
+import { Outlet } from '@remix-run/react'
 
 export default function AuthLayout() {
   return (
@@ -9,5 +9,5 @@ export default function AuthLayout() {
         </main>
       </div>
     </div>
-  );
+  )
 }
