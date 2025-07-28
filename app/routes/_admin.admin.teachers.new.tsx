@@ -4,9 +4,9 @@ import { redirect } from '@vercel/remix'
 import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
+import { CreateTeacher, ValidationErrorTeacher } from '~/types/teacher'
 import { authApi } from '~/utils/axios'
 import { validateCreateTeacher } from '~/zod/teacher'
-import { CreateTeacherResponse, ValidationErrorResponse } from './type'
 
 export const handle = {
   title: 'គ្រូ',
@@ -22,13 +22,13 @@ export async function action({ request }: ActionFunctionArgs) {
   const { data, error } = await validateCreateTeacher(payload)
   if (!data) return { error }
   try {
-    const res = await authApi.post<CreateTeacherResponse>('/teachers', data)
+    const res = await authApi.post<CreateTeacher>('/teachers', data)
     if (res.status === 201) return redirect('/admin/teachers')
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status
       if (status === 400)
-        return { error: err.response?.data?.message as ValidationErrorResponse }
+        return { error: err.response?.data?.message as ValidationErrorTeacher }
       if (status === 404) throw new Response('Not found', { status: 404 })
       throw new Response('Server error', { status: 500 })
     }
@@ -36,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export default function CreateTeacher() {
+export default function CreateTeacherPage() {
   const navigate = useNavigate()
   const actionData = useActionData<typeof action>()
   const error = actionData?.error

@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import { EmptyState, LoadingUI } from '~/component'
 import { Eye, Pen, Plus, Trash2 } from '~/icons'
 import { authApi } from '~/utils/axios'
-import { Response } from './type'
+import { Teacher } from '~/types/teacher'
 
 export const handle = {
   title: 'គ្រូ',
@@ -15,12 +15,12 @@ export const meta: MetaFunction = () => {
 }
 
 export async function loader() {
-  const pendingRes = authApi.get<Response>('/teachers')
+  const pendingRes = authApi.get<Teacher[]>('/teachers')
   const pendingTeachers = pendingRes.then((res) => res.data)
   return { pendingTeachers }
 }
 
-export default function AdminTeachers() {
+export default function ListTeacherPage() {
   const { pendingTeachers } = useLoaderData<typeof loader>()
 
   return (

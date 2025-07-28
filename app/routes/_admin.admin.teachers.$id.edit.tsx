@@ -11,16 +11,15 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from '@vercel/remix'
-import { redirect } from '@vercel/remix'
 import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
 import { validateUpdateTeacher } from '~/zod/teacher'
-import { Teacher, UpdateTeacherResponse, ValidationErrorResponse } from './type'
 import { useEffect, useRef } from 'react'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
 import { toast } from '~/component'
+import { Teacher, UpdateTeacher, ValidationErrorTeacher } from '~/types/teacher'
 
 export const handle = {
   title: 'គ្រូ',
@@ -52,22 +51,16 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const { id } = params
   if (!id) throw new Response('Not found', { status: 404 })
   const payload = await request.formData()
-  console.log('payload', Object.fromEntries(payload.entries()))
   const { data, error } = await validateUpdateTeacher(payload)
-  console.log('data', data)
   if (!data) return { error }
   try {
-    const res = await authApi.patch<UpdateTeacherResponse>(
-      `/teachers/${id}`,
-      data
-    )
-    console.log('message', res.data.message)
+    const res = await authApi.patch<UpdateTeacher>(`/teachers/${id}`, data)
     return { message: res.data.message, submittedAt: Date.now() }
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status
       if (status === 400)
-        return { error: err.response?.data?.message as ValidationErrorResponse }
+        return { error: err.response?.data?.message as ValidationErrorTeacher }
       if (status === 404) throw new Response('Not found', { status: 404 })
       throw new Response('Server error', { status: 500 })
     }
@@ -75,7 +68,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export default function UpdateTeacher() {
+export default function UpdateTeacherPage() {
   const { teacher } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
   const navigate = useNavigate()
@@ -92,11 +85,8 @@ export default function UpdateTeacher() {
     const f = teacherForm.current
     if (f) {
       const a = new FormData(f)
-      console.log('a', Object.fromEntries(a.entries()))
       const b = getFormDataFromObject(t)
-      console.log('b', Object.fromEntries(b.entries()))
       const formData = getUpdatedFormData(a, b)
-      console.log('formData', Object.fromEntries(formData.entries()))
       if (Array.from(formData.keys()).length > 0) {
         submit(formData, {
           action: `/admin/teachers/${t.id}/edit`,

@@ -12,11 +12,7 @@ export type Teacher = {
   phone: string
 }
 
-export type UpdateTeacherResponse = {
-  message: string
-}
-
-export type ValidationErrorResponse = {
+export type ValidationErrorTeacher = {
   name?: string[]
   code?: string[]
   phone?: string[]
@@ -27,4 +23,16 @@ export type ValidationErrorResponse = {
   profession2?: string[]
   krobkan?: string[]
   rank?: string[]
+}
+
+export type CreateTeacher = {
+  message: string
+}
+
+export type DeleteTeacher = {
+  message: string
+}
+
+export type UpdateTeacher = {
+  message: string
 }

@@ -2,9 +2,9 @@ import { useLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@vercel/remix'
 import { authApi } from '~/utils/axios'
 import { Forehead } from '~/component'
-import type { Response } from './type'
 import axios from 'axios'
 import { format } from 'date-fns'
+import { Teacher } from '~/types/teacher'
 
 export const handle = {
   title: 'គ្រូ',
@@ -20,7 +20,7 @@ export async function loader(args: LoaderFunctionArgs) {
   const { id } = params
   try {
     const teacher = await authApi
-      .get<Response>(`/teachers/${id}`)
+      .get<Teacher>(`/teachers/${id}`)
       .then((res) => res.data)
     return { teacher }
   } catch (err) {
@@ -33,7 +33,7 @@ export async function loader(args: LoaderFunctionArgs) {
   }
 }
 
-export default function TeacherDetail() {
+export default function TeacherDetailPage() {
   const { teacher } = useLoaderData<typeof loader>()
 
   return (
