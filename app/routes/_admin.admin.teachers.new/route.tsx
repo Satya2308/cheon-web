@@ -46,7 +46,10 @@ export default function CreateTeacher() {
     <dialog className="modal modal-open">
       <div className="modal-box p-0 ml-3 sm:ml-0 overflow-hidden max-w-3xl max-h-[90vh] flex flex-col">
         <div className="flex justify-end mt-4 mr-4 flex-shrink-0">
-          <Link to="/admin/teachers" className="btn btn-ghost p-2">
+          <Link
+            to="/admin/teachers"
+            className="btn btn-sm btn-square btn-ghost"
+          >
             <X size={20} />
           </Link>
         </div>
