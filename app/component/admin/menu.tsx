@@ -27,7 +27,7 @@ export default function SideMenu({ pathname }: Props) {
   }
 
   const item = (title: string, href: string, Icon: React.FC<IconProps>) => {
-    const active = isActive(href) ? 'bg-sky-600 text-white' : ''
+    const active = isActive(href) ? 'bg-gray-800 text-white' : ''
     return (
       <a href={href} title={title} className={clsx('space-x-2', active)}>
         <Icon size={20} />

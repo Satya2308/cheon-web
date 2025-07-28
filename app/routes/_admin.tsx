@@ -22,7 +22,7 @@ export default function AdminLayout() {
       <aside className="w-60 bg-base-200">
         <header className="border-b border-b-base-300">
           <div className="h-14 flex justify-between items-center p-4">
-            <div className="flex max-w-32 text-sky-900 text-2xl font-semibold">
+            <div className="flex max-w-32 text-gray-900 text-2xl font-semibold">
               បឹងកេងកង
             </div>
           </div>
@@ -40,13 +40,13 @@ export default function AdminLayout() {
                   <ChevronLeft size={23} />
                 </a>
               )}
-              <h2 className="text-2xl text-sky-800 font-semibold">{title}</h2>
+              <h2 className="text-2xl text-gray-800 font-semibold">{title}</h2>
             </div>
             <div className="text-right">
               {user && (
-                <div className="mr-4 text-red-500">
+                <div className="mr-4">
                   <a
-                    className="btn btn-square btn-sm btn-ghost hover:text-red-600"
+                    className="btn btn-square btn-sm btn-ghost"
                     href="/logout"
                     title="Logout"
                   >

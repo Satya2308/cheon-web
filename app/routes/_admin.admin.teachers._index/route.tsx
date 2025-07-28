@@ -15,7 +15,7 @@ export const meta: MetaFunction = () => {
 }
 
 export async function loader() {
-  const pendingRes = authApi.get<Response>('/teacher')
+  const pendingRes = authApi.get<Response>('/teachers')
   const pendingTeachers = pendingRes.then((res) => res.data)
   return { pendingTeachers }
 }
@@ -68,7 +68,7 @@ export default function AdminTeachers() {
                         <tr key={item.id} className="hover">
                           <td className="text-base">{item.code}</td>
                           <td>{item.name}</td>
-                          <td className="text-base">{item.user.phone}</td>
+                          <td className="text-base">{item.phone}</td>
                           <td>{item.subject}</td>
                           <td>
                             <div className="flex gap-1">
