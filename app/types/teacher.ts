@@ -29,10 +29,10 @@ export type CreateTeacher = {
   message: string
 }
 
-export type DeleteTeacher = {
+export type UpdateTeacher = {
   message: string
 }
 
-export type UpdateTeacher = {
+export type DeleteTeacher = {
   message: string
 }

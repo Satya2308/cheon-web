@@ -1,19 +1,28 @@
-import { Await } from '@remix-run/react'
+import { Await, useLoaderData } from '@remix-run/react'
 import type { MetaFunction } from '@vercel/remix'
-import { format } from 'date-fns'
 import { Suspense } from 'react'
-import { EmptyState, LoadingUI, Pagination } from '~/component'
+import { EmptyState, LoadingUI } from '~/component'
 import { Eye, Pen, Plus, Trash2 } from '~/icons'
+import { authApi } from '~/utils/axios'
+import { Year } from '~/types/year'
 
 export const handle = {
-  title: 'Teachers',
+  title: 'ឆ្នាំ',
 }
 
 export const meta: MetaFunction = () => {
   return [{ title: handle.title }]
 }
 
-export default function AdminTeachers() {
+export async function loader() {
+  const pendingRes = authApi.get<Year[]>('/years')
+  const pendingYears = pendingRes.then((res) => res.data)
+  return { pendingYears }
+}
+
+export default function ListYearPage() {
+  const { pendingYears } = useLoaderData<typeof loader>()
+
   return (
     <>
       <header
@@ -27,66 +36,52 @@ export default function AdminTeachers() {
         ].join(' ')}
       >
         <div />
-        <a
-          href="/admin/Industries/new"
-          title="New Industry"
-          className="btn btn-ghost btn-sm"
-        >
-          <Plus size={18} />
-          Create New
+        <a href="/admin/years/new" className="btn btn-ghost bg-none text-lg">
+          <Plus size={20} />
+          បង្កើតថ្មី
         </a>
       </header>
-      {/* <Suspense fallback={<LoadingUI />}>
-        <Await resolve={res}>
-          {(res) => (
+      <Suspense fallback={<LoadingUI />}>
+        <Await resolve={pendingYears}>
+          {(years) => (
             <>
-              {res.data.length === 0 && (
+              {years.length === 0 && (
                 <EmptyState
-                  actionUrl="/admin/industries/new"
-                  actionLabel="Create new industry"
+                  actionUrl="/admin/years/new"
+                  actionLabel="បង្កើតឆ្នាំថ្មី"
                 />
               )}
-              {res.data.length > 0 && (
+              {years.length > 0 && (
                 <>
                   <table className="table table-auto">
-                    <thead className="bg-base-100 uppercase">
-                      <tr>
-                        <th className="w-20">Id</th>
-                        <th>Name</th>
-                        <th>Description</th>
-                        <th>Created At</th>
-                        <th>Action</th>
+                    <thead className="uppercase bg-base-200 text-lg text-black">
+                      <tr className="font-semibold">
+                        <th>ឈ្មោះ</th>
+                        <th>ប្រភេទថ្នាក់</th>
+                        <th>សកម្មភាព</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      {res.data.map((item) => (
+                    <tbody className="text-lg">
+                      {years.map((item) => (
                         <tr key={item.id} className="hover">
-                          <td>{item.id}</td>
                           <td>{item.name}</td>
-                          <td>
-                            {item.description
-                              ? item.description.slice(0, 60)
-                              : "-"}
-                          </td>
-                          <td>
-                            {format(item.createdAt, "yyyy-MM-dd hh:mm a")}
-                          </td>
+                          <td>{item.classDuration === '1_hour' ? '1 ម៉ោង' : '1 ម៉ោងកន្លះ'}</td>
                           <td>
                             <div className="flex gap-1">
                               <a
-                                href={`/admin/industries/${item.id}`}
+                                href={`/admin/years/${item.id}`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Eye size={16} />
                               </a>
                               <a
-                                href={`/admin/industries/${item.id}/edit`}
+                                href={`/admin/years/${item.id}/edit`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Pen size={16} />
                               </a>
                               <a
-                                href={`/admin/industries/${item.id}/delete`}
+                                href={`/admin/years/${item.id}/delete`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Trash2 size={16} />
@@ -97,17 +92,12 @@ export default function AdminTeachers() {
                       ))}
                     </tbody>
                   </table>
-                  {res.paginate.pageCount > 1 && (
-                    <div className="mt-10">
-                      <Pagination pageUrl={url} {...res.paginate} />
-                    </div>
-                  )}
                 </>
               )}
             </>
           )}
         </Await>
-      </Suspense> */}
+      </Suspense>
     </>
   )
 }

@@ -5,7 +5,7 @@ const baseSchema = z.object({
   name: z.string().min(1, 'ត្រូវបំពេញ'),
   phone: z.string().min(1, 'ត្រូវបំពេញ'),
   code: z.string().min(1, 'ត្រូវបំពេញ'),
-  gender: z.string(),
+  gender: z.enum(['MALE', 'FEMALE']),
   dob: z.union([z.coerce.date(), z.literal('').transform(() => null)]),
   subject: z.string(),
   profession1: z.string(),

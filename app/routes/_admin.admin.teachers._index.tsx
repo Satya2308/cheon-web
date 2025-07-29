@@ -69,7 +69,7 @@ export default function ListTeacherPage() {
                           <td className="text-base">{item.code}</td>
                           <td>{item.name}</td>
                           <td className="text-base">{item.phone}</td>
-                          <td>{item.subject}</td>
+                          <td>{item.subject ? item.subject : '-'}</td>
                           <td>
                             <div className="flex gap-1">
                               <a

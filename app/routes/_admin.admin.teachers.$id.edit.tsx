@@ -157,7 +157,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="មុខវិជ្ជាបង្រៀន"
                     name="subject"
                     defaultValue={teacher.subject || ''}
                   />
@@ -248,7 +247,7 @@ export default function UpdateTeacherPage() {
                   type="button"
                   onClick={() => handleSubmit(teacher)}
                 >
-                  បង្កើត
+                  កែតម្រូវ
                 </button>
                 <button
                   className="btn btn-ghost w-32"
