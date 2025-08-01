@@ -71,7 +71,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function UpdateTeacherPage() {
   const { teacher } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
-  const navigate = useNavigate()
   const teacherForm = useRef<HTMLFormElement | null>(null)
   const submit = useSubmit()
   const error = actionData?.error
@@ -118,7 +117,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="ឈ្មោះ"
                     name="name"
                     defaultValue={teacher.name}
                   />
@@ -131,7 +129,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="លេខកូដ"
                     name="code"
                     defaultValue={teacher.code}
                   />
@@ -144,7 +141,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="លេខទូរស័ព្ទ"
                     name="phone"
                     defaultValue={teacher.phone}
                   />
@@ -195,7 +191,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="ក្របខណ្ឌ"
                     name="krobkan"
                     defaultValue={teacher.krobkan || ''}
                   />
@@ -208,7 +203,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="ឯកទេសទី​ ​១"
                     name="profession1"
                     defaultValue={teacher.profession1 || ''}
                   />
@@ -221,7 +215,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="ឯកទេសទី ​២"
                     name="profession2"
                     defaultValue={teacher.profession2 || ''}
                   />
@@ -234,7 +227,6 @@ export default function UpdateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="ឋានន្តរស័ក្ត"
                     name="rank"
                     defaultValue={teacher.rank || ''}
                   />
@@ -249,13 +241,13 @@ export default function UpdateTeacherPage() {
                 >
                   កែតម្រូវ
                 </button>
-                <button
+                <Link
+                  to="/admin/teachers"
                   className="btn btn-ghost w-32"
-                  onClick={() => navigate(-1)}
                   type="button"
                 >
                   ចេញ
-                </button>
+                </Link>
               </div>
             </Form>
           </div>

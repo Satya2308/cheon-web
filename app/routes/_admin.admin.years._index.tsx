@@ -65,11 +65,15 @@ export default function ListYearPage() {
                       {years.map((item) => (
                         <tr key={item.id} className="hover">
                           <td>{item.name}</td>
-                          <td>{item.classDuration === '1_hour' ? '1 ម៉ោង' : '1 ម៉ោងកន្លះ'}</td>
+                          <td>
+                            {item.classDuration === '1_hour'
+                              ? '1 ម៉ោង'
+                              : '1 ម៉ោងកន្លះ'}
+                          </td>
                           <td>
                             <div className="flex gap-1">
                               <a
-                                href={`/admin/years/${item.id}`}
+                                href={`/admin/years/${item.id}/classrooms`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Eye size={16} />

@@ -37,7 +37,6 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function CreateYearPage() {
-  const navigate = useNavigate()
   const actionData = useActionData<typeof action>()
   const error = actionData?.error
   const errorObj = error && typeof error === 'object' ? error : null
@@ -46,10 +45,7 @@ export default function CreateYearPage() {
     <dialog className="modal modal-open">
       <div className="modal-box p-0 ml-3 sm:ml-0 overflow-hidden max-w-xl max-h-[90vh] flex flex-col">
         <div className="flex justify-end mt-4 mr-4 flex-shrink-0">
-          <Link
-            to="/admin/years"
-            className="btn btn-sm btn-square btn-ghost"
-          >
+          <Link to="/admin/years" className="btn btn-sm btn-square btn-ghost">
             <X size={20} />
           </Link>
         </div>
@@ -61,12 +57,7 @@ export default function CreateYearPage() {
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឈ្មោះ
                   </legend>
-                  <input
-                    type="text"
-                    className="input w-full"
-                    placeholder="ឈ្មោះ"
-                    name="name"
-                  />
+                  <input type="text" className="input w-full" name="name" />
                   {errorObj?.name && fieldError(errorObj.name[0])}
                 </fieldset>
                 <fieldset className="fieldset">
@@ -77,20 +68,21 @@ export default function CreateYearPage() {
                     <option value="1_hour">1 ម៉ោង</option>
                     <option value="1_5_hour">1 ម៉ោងកន្លះ</option>
                   </select>
-                  {errorObj?.classDuration && fieldError(errorObj.classDuration[0])}
+                  {errorObj?.classDuration &&
+                    fieldError(errorObj.classDuration[0])}
                 </fieldset>
               </div>
               <div className="mt-10 flex gap-2">
                 <button className="btn btn-primary flex-1" type="submit">
                   បង្កើត
                 </button>
-                <button
+                <Link
+                  to="/admin/years"
                   className="btn btn-ghost w-32"
-                  onClick={() => navigate(-1)}
                   type="button"
                 >
                   ចេញ
-                </button>
+                </Link>
               </div>
             </Form>
           </div>

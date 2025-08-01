@@ -3,7 +3,6 @@ import {
   Link,
   useActionData,
   useLoaderData,
-  useNavigate,
   useSubmit,
 } from '@remix-run/react'
 import type {
@@ -15,11 +14,9 @@ import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
-import { validateUpdateTeacher } from '~/zod/teacher'
 import { useEffect, useRef } from 'react'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
 import { toast } from '~/component'
-import { Teacher, UpdateTeacher, ValidationErrorTeacher } from '~/types/teacher'
 import { UpdateYear, ValidationErrorYear, Year } from '~/types/year'
 import { validateUpdateYear } from '~/zod/year'
 
@@ -35,9 +32,7 @@ export const meta: MetaFunction = () => {
 export async function loader({ params }: LoaderFunctionArgs) {
   const { id } = params
   try {
-    const year = await authApi
-      .get<Year>(`/years/${id}`)
-      .then((res) => res.data)
+    const year = await authApi.get<Year>(`/years/${id}`).then((res) => res.data)
     return { year }
   } catch (err) {
     if (axios.isAxiosError(err)) {
@@ -73,7 +68,6 @@ export async function action({ request, params }: ActionFunctionArgs) {
 export default function UpdateYearPage() {
   const { year } = useLoaderData<typeof loader>()
   const actionData = useActionData<typeof action>()
-  const navigate = useNavigate()
   const yearForm = useRef<HTMLFormElement | null>(null)
   const submit = useSubmit()
   const error = actionData?.error
@@ -102,10 +96,7 @@ export default function UpdateYearPage() {
     <dialog className="modal modal-open">
       <div className="modal-box p-0 ml-3 sm:ml-0 overflow-hidden max-w-xl max-h-[90vh] flex flex-col">
         <div className="flex justify-end mt-4 mr-4 flex-shrink-0">
-          <Link
-            to="/admin/years"
-            className="btn btn-sm btn-ghost btn-square"
-          >
+          <Link to="/admin/years" className="btn btn-sm btn-ghost btn-square">
             <X size={20} />
           </Link>
         </div>
@@ -120,7 +111,6 @@ export default function UpdateYearPage() {
                   <input
                     type="text"
                     className="input w-full"
-                    placeholder="ឈ្មោះ"
                     name="name"
                     defaultValue={year.name}
                   />
@@ -138,9 +128,10 @@ export default function UpdateYearPage() {
                     <option value="1_hour">1 ម៉ោង</option>
                     <option value="1_5_hour">1 ម៉ោងកន្លះ</option>
                   </select>
-                  {errorObj?.classDuration && fieldError(errorObj.classDuration[0])}
+                  {errorObj?.classDuration &&
+                    fieldError(errorObj.classDuration[0])}
                 </fieldset>
-                <input type="hidden" name='isActive' value={true.toString()} />
+                <input type="hidden" name="isActive" value={true.toString()} />
               </div>
               <div className="mt-10 flex gap-2">
                 <button
@@ -150,13 +141,13 @@ export default function UpdateYearPage() {
                 >
                   កែតម្រូវ
                 </button>
-                <button
+                <Link
                   className="btn btn-ghost w-32"
-                  onClick={() => navigate(-1)}
+                  to="/admin/years"
                   type="button"
                 >
                   ចេញ
-                </button>
+                </Link>
               </div>
             </Form>
           </div>

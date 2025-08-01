@@ -1,10 +1,11 @@
-import { Form, Link, useActionData, useNavigate } from '@remix-run/react'
+import { Form, Link, useActionData, useOutletContext } from '@remix-run/react'
 import type { ActionFunctionArgs, MetaFunction } from '@vercel/remix'
 import { redirect } from '@vercel/remix'
 import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { CreateTeacher, ValidationErrorTeacher } from '~/types/teacher'
+import { Year } from '~/types/year'
 import { authApi } from '~/utils/axios'
 import { validateCreateTeacher } from '~/zod/teacher'
 
@@ -36,7 +37,8 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export default function CreateTeacherPage() {
+export default function CreateClassroomPage() {
+  const { year } = useOutletContext<{ year: Year }>()
   const actionData = useActionData<typeof action>()
   const error = actionData?.error
   const errorObj = error && typeof error === 'object' ? error : null
@@ -60,28 +62,48 @@ export default function CreateTeacherPage() {
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឈ្មោះ
                   </legend>
-                  <input type="text" className="input w-full" name="name" />
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="ឈ្មោះ"
+                    name="name"
+                  />
                   {errorObj?.name && fieldError(errorObj.name[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     លេខកូដ
                   </legend>
-                  <input type="text" className="input w-full" name="code" />
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="លេខកូដ"
+                    name="code"
+                  />
                   {errorObj?.code && fieldError(errorObj.code[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     លេខទូរស័ព្ទ
                   </legend>
-                  <input type="text" className="input w-full" name="phone" />
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="លេខទូរស័ព្ទ"
+                    name="phone"
+                  />
                   {errorObj?.phone && fieldError(errorObj.phone[0])}
                 </fieldset>
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     មុខវិជ្ជាបង្រៀន
                   </legend>
-                  <input type="text" className="input w-full" name="subject" />
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="មុខវិជ្ជាបង្រៀន"
+                    name="subject"
+                  />
                   {errorObj?.subject && fieldError(errorObj.subject[0])}
                 </fieldset>
                 <fieldset className="fieldset">
@@ -105,7 +127,12 @@ export default function CreateTeacherPage() {
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ក្របខណ្ឌ
                   </legend>
-                  <input type="text" className="input w-full" name="krobkan" />
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="ក្របខណ្ឌ"
+                    name="krobkan"
+                  />
                   {errorObj?.krobkan && fieldError(errorObj.krobkan[0])}
                 </fieldset>
                 <fieldset className="fieldset">
@@ -115,6 +142,7 @@ export default function CreateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
+                    placeholder="ឯកទេសទី​ ​១"
                     name="profession1"
                   />
                   {errorObj?.profession1 && fieldError(errorObj.profession1[0])}
@@ -126,6 +154,7 @@ export default function CreateTeacherPage() {
                   <input
                     type="text"
                     className="input w-full"
+                    placeholder="ឯកទេសទី ​២"
                     name="profession2"
                   />
                   {errorObj?.profession2 && fieldError(errorObj.profession2[0])}
@@ -134,7 +163,12 @@ export default function CreateTeacherPage() {
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឋានន្តរស័ក្ត
                   </legend>
-                  <input type="text" className="input w-full" name="rank" />
+                  <input
+                    type="text"
+                    className="input w-full"
+                    placeholder="ឋានន្តរស័ក្ត"
+                    name="rank"
+                  />
                   {errorObj?.rank && fieldError(errorObj.rank[0])}
                 </fieldset>
               </div>
@@ -143,8 +177,8 @@ export default function CreateTeacherPage() {
                   បង្កើត
                 </button>
                 <Link
-                  to="/admin/teachers"
                   className="btn btn-ghost w-32"
+                  to={`/admin/years/${year.id}/classrooms`}
                   type="button"
                 >
                   ចេញ
