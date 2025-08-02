@@ -3,6 +3,7 @@ import {
   Link,
   useActionData,
   useLoaderData,
+  useOutletContext,
   useSubmit,
 } from '@remix-run/react'
 import type {
@@ -14,11 +15,18 @@ import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
 import { toast } from '~/component'
-import { UpdateYear, ValidationErrorYear, Year } from '~/types/year'
-import { validateUpdateYear } from '~/zod/year'
+import { Year } from '~/types/year'
+import {
+  Classroom,
+  UpdateClassroom,
+  ValidationErrorClassroom,
+} from '~/types/classroom'
+import TeacherCombobox from '~/component/teacherCombobox'
+import { TeacherSearched } from '~/types/teacher'
+import { validateUpdateClassroom } from '~/zod/classroom'
 
 export const handle = {
   title: 'ឆ្នាំ',
@@ -30,11 +38,13 @@ export const meta: MetaFunction = () => {
 }
 
 export async function loader({ params }: LoaderFunctionArgs) {
-  const { id } = params
-  if (!id) throw new Response('Not found', { status: 404 })
+  const { id, cid } = params
+  if (!id || !cid) throw new Response('Not found', { status: 404 })
   try {
-    const year = await authApi.get<Year>(`/years/${id}`).then((res) => res.data)
-    return { year }
+    const classroom = await authApi
+      .patch<Classroom>(`/years/${id}/classrooms/${cid}`)
+      .then((res) => res.data)
+    return { classroom }
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status
@@ -46,19 +56,24 @@ export async function loader({ params }: LoaderFunctionArgs) {
 }
 
 export async function action({ request, params }: ActionFunctionArgs) {
-  const { id } = params
-  if (!id) throw new Response('Not found', { status: 404 })
+  const { id, cid } = params
+  if (!id || !cid) throw new Response('Not found', { status: 404 })
   const payload = await request.formData()
-  const { data, error } = await validateUpdateYear(payload)
+  const { data, error } = await validateUpdateClassroom(payload)
   if (!data) return { error }
   try {
-    const res = await authApi.patch<UpdateYear>(`/years/${id}`, data)
+    const res = await authApi.patch<UpdateClassroom>(
+      `/years/${id}/classrooms/${cid}`,
+      data
+    )
     return { message: res.data.message, submittedAt: Date.now() }
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status
       if (status === 400)
-        return { error: err.response?.data?.message as ValidationErrorYear }
+        return {
+          error: err.response?.data?.message as ValidationErrorClassroom,
+        }
       if (status === 404) throw new Response('Not found', { status: 404 })
       throw new Response('Server error', { status: 500 })
     }
@@ -66,10 +81,13 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
-export default function UpdateYearPage() {
-  const { year } = useLoaderData<typeof loader>()
+export default function UpdateClassroomPage() {
+  const { classroom } = useLoaderData<typeof loader>()
+  const { year } = useOutletContext<{ year: Year }>()
   const actionData = useActionData<typeof action>()
-  const yearForm = useRef<HTMLFormElement | null>(null)
+  const [selectedTeacher, setSelectedTeacher] =
+    useState<TeacherSearched | null>(classroom.teacher)
+  const classroomForm = useRef<HTMLFormElement | null>(null)
   const submit = useSubmit()
   const error = actionData?.error
   const errorObj = error && typeof error === 'object' ? error : null
@@ -78,15 +96,15 @@ export default function UpdateYearPage() {
     if (actionData?.message) toast(actionData?.message)
   }, [actionData?.submittedAt])
 
-  const handleSubmit = (t: Year) => {
-    const f = yearForm.current
+  const handleSubmit = (c: Classroom) => {
+    const f = classroomForm.current
     if (f) {
       const a = new FormData(f)
-      const b = getFormDataFromObject(t)
+      const b = getFormDataFromObject(c)
       const formData = getUpdatedFormData(a, b)
       if (Array.from(formData.keys()).length > 0) {
         submit(formData, {
-          action: `/admin/years/${t.id}/edit`,
+          action: `/admin/years/${year.id}/classrooms/${classroom.id}/edit`,
           method: 'PATCH',
         })
       }
@@ -103,42 +121,47 @@ export default function UpdateYearPage() {
         </div>
         <main className="px-8 pb-10 overflow-y-auto flex-1">
           <div className="pt-6 flex items-center justify-center">
-            <Form method="PATCH" className="w-full max-w-xl" ref={yearForm}>
+            <Form
+              method="PATCH"
+              className="w-full max-w-xl"
+              ref={classroomForm}
+            >
               <div className="grid grid-cols-1 gap-6">
                 <fieldset className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
-                    ឈ្មោះ
+                    ឈ្មោះថ្នាក់
                   </legend>
                   <input
                     type="text"
                     className="input w-full"
                     name="name"
-                    defaultValue={year.name}
+                    defaultValue={classroom.name}
                   />
                   {errorObj?.name && fieldError(errorObj.name[0])}
                 </fieldset>
-                <fieldset className="fieldset">
-                  <legend className="fieldset-legend leading-relaxed text-base font-semibold">
-                    ប្រភេទ
+                <fieldset className="fieldset w-2/3">
+                  <legend className="fieldset-legend leading-relaxed text-base">
+                    គ្រូបន្ទុកថ្នាក់
                   </legend>
-                  <select
-                    className="select"
-                    name="classDuration"
-                    defaultValue={year.classDuration ?? ''}
-                  >
-                    <option value="1_hour">1 ម៉ោង</option>
-                    <option value="1_5_hour">1 ម៉ោងកន្លះ</option>
-                  </select>
-                  {errorObj?.classDuration &&
-                    fieldError(errorObj.classDuration[0])}
+                  <TeacherCombobox
+                    value={selectedTeacher}
+                    onChange={setSelectedTeacher}
+                    placeholder="ស្វែងរកតាមឈ្មោះ"
+                  />
+                  <input
+                    type="hidden"
+                    name="leadTeacherId"
+                    value={selectedTeacher?.id || ''}
+                  />
+                  {errorObj?.leadTeacherId &&
+                    fieldError(errorObj.leadTeacherId[0])}
                 </fieldset>
-                <input type="hidden" name="isActive" value={true.toString()} />
               </div>
               <div className="mt-10 flex gap-2">
                 <button
                   className="btn btn-primary flex-1"
                   type="button"
-                  onClick={() => handleSubmit(year)}
+                  onClick={() => handleSubmit(classroom)}
                 >
                   កែតម្រូវ
                 </button>

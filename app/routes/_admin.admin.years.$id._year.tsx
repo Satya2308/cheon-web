@@ -16,6 +16,7 @@ export const meta: MetaFunction = () => {
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const { id } = params
+  if (!id) throw new Response('Not found', { status: 404 })
   try {
     const year = await authApi.get<Year>(`/years/${id}`).then((res) => res.data)
     return { year }

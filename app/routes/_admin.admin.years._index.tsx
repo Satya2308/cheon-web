@@ -61,7 +61,7 @@ export default function ListYearPage() {
                         <th>សកម្មភាព</th>
                       </tr>
                     </thead>
-                    <tbody className="text-lg">
+                    <tbody className="text-base">
                       {years.map((item) => (
                         <tr key={item.id} className="hover">
                           <td>{item.name}</td>

@@ -56,29 +56,31 @@ export default function ListClassroomPage() {
                     'pb-5',
                   ].join(' ')}
                 >
-                  <div className="text-xl">Classrooms</div>
+                  <div className="text-2xl font-semibold">ថ្នាក់រៀន</div>
+                  <div className="flex gap-2"></div>
                   <a
                     href={`/admin/years/${year.id}/classrooms/new`}
-                    className="btn btn-ghost btn-sm"
+                    className="btn btn-ghost bg-none text-lg"
                   >
                     <Plus size={18} />
                     បង្កើតថ្មី
                   </a>
                 </header>
-                <table className="table table-auto rounded-md">
-                  <thead className="bg-base-100 uppercase">
-                    <tr>
+                <table className="table table-auto">
+                  <thead className="uppercase bg-base-200 text-lg text-black">
+                    <tr className="font-semibold">
                       <th>ឈ្មោះ</th>
-                      <th>គ្រូបន្ទុកថ្នាក់</th>
+                      <th>គ្រូបន្ទុក</th>
+                      <th>ចំនួនគ្រូ</th>
                       <th>សកម្មភាព</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="text-base">
                     {classrooms.map((item) => (
                       <tr key={item.id} className="hover">
-                        <td>{item.id}</td>
                         <td>{item.name}</td>
                         <td>{item.teacher.name}</td>
+                        <td>{`${item.assignedTimeslots}/${item.totalTimeslots}`}</td>
                         <td>
                           <div className="flex gap-1">
                             <a

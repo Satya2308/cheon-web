@@ -12,6 +12,11 @@ export type Teacher = {
   phone: string
 }
 
+export type TeacherSearched = {
+  id: number
+  name: string
+}
+
 export type ValidationErrorTeacher = {
   name?: string[]
   code?: string[]

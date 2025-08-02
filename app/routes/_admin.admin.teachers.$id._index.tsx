@@ -18,6 +18,7 @@ export const meta: MetaFunction = () => {
 export async function loader(args: LoaderFunctionArgs) {
   const { params } = args
   const { id } = params
+  if (!id) throw new Response('Not found', { status: 404 })
   try {
     const teacher = await authApi
       .get<Teacher>(`/teachers/${id}`)

@@ -3,23 +3,16 @@ import { z } from 'zod'
 
 const baseSchema = z.object({
   name: z.string().min(1, 'ត្រូវបំពេញ'),
-  phone: z.string().min(1, 'ត្រូវបំពេញ'),
-  code: z.string().min(1, 'ត្រូវបំពេញ'),
-  gender: z.enum(['MALE', 'FEMALE']),
-  dob: z.union([z.coerce.date(), z.literal('').transform(() => null)]),
-  subject: z.string(),
-  profession1: z.string(),
-  profession2: z.string(),
-  krobkan: z.string(),
-  rank: z.string(),
+  leadTeacherId: z.string().min(1, 'ត្រូវបំពេញ'),
+  yearId: z.string().min(1, 'ត្រូវបំពេញ'),
 })
 
-export async function validateCreateTeacher(data: FormData) {
+export async function validateCreateClassroom(data: FormData) {
   const raw = getRaw(data)
   return await baseSchema.safeParseAsync(raw).then((res) => flatten(res))
 }
 
-export async function validateUpdateTeacher(data: FormData) {
+export async function validateUpdateClassroom(data: FormData) {
   const raw = getRaw(data)
   return await baseSchema
     .partial()

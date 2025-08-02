@@ -1,9 +1,11 @@
+import axios from 'axios'
 import { useRef, useState } from 'react'
+import { authApi } from '~/utils/axios'
 
 export function useTeacherSearch() {
   const [teachers, setTeachers] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const abortController = useRef<AbortController | null>(null)
 
   const searchTeachers = async (query: string) => {
@@ -17,16 +19,19 @@ export function useTeacherSearch() {
     setError(null)
     abortController.current = new AbortController()
     try {
-      const response = await fetch(
-        `/teachers/search?q=${encodeURIComponent(query)}&limit=20`,
-        { signal: abortController.current.signal }
-      )
-      if (!response.ok) throw new Error('Failed to search teachers')
-      const data = await response.json()
-      setTeachers(data)
+      const response = await authApi.get('/teachers/search', {
+        params: { q: query, limit: 20 },
+        signal: abortController.current.signal,
+      })
+      setTeachers(response.data)
     } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        setError(err.message)
+      if (axios.isAxiosError(err)) {
+        if (err.name !== 'CanceledError') {
+          setError(err.response?.data?.message || err.message)
+          setTeachers([])
+        }
+      } else {
+        setError('An unexpected error occurred')
         setTeachers([])
       }
     } finally {

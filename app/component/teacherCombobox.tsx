@@ -7,17 +7,11 @@ import {
 } from '@heroicons/react/20/solid'
 import { useDebounce } from '~/hook/useDebounce'
 import { useTeacherSearch } from '~/hook/useSearchTeacher'
-
-interface Teacher {
-  id: number
-  name: string
-  email: string
-  department: string
-}
+import { TeacherSearched } from '~/types/teacher'
 
 interface TeacherComboboxProps {
-  value: Teacher | null
-  onChange: (teacher: Teacher | null) => void
+  value: TeacherSearched | null
+  onChange: (teacher: TeacherSearched | null) => void
   placeholder?: string
 }
 
@@ -27,7 +21,7 @@ export default function TeacherCombobox({
   placeholder = 'ស្វែងរកគ្រូបង្រៀន...',
 }: TeacherComboboxProps) {
   const [query, setQuery] = useState('')
-  const debouncedQuery = useDebounce(query, 300)
+  const debouncedQuery = useDebounce(query, 1000)
   const { teachers, loading, error, searchTeachers } = useTeacherSearch()
 
   useEffect(() => {
@@ -42,9 +36,10 @@ export default function TeacherCombobox({
             <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 ml-3" />
             <Combobox.Input
               className="w-full border-none py-3 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 focus:outline-none"
-              displayValue={(teacher: Teacher) => teacher?.name || ''}
+              displayValue={(teacher: TeacherSearched) => teacher?.name || ''}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={placeholder}
+              autoComplete="off"
             />
             <Combobox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon className="h-5 w-5 text-gray-400" />
@@ -52,7 +47,7 @@ export default function TeacherCombobox({
           </div>
         </div>
 
-        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
           {loading && (
             <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
               <div className="flex items-center space-x-2">
@@ -78,12 +73,12 @@ export default function TeacherCombobox({
             )}
 
           {!loading &&
-            teachers.map((teacher: Teacher) => (
+            teachers.map((teacher: TeacherSearched) => (
               <Combobox.Option
                 key={teacher.id}
                 className={({ active }) =>
                   `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                    active ? 'bg-blue-600 text-white' : 'text-gray-900'
+                    active ? 'bg-gray-800 text-white' : 'text-gray-900'
                   }`
                 }
                 value={teacher}
@@ -97,13 +92,6 @@ export default function TeacherCombobox({
                         }`}
                       >
                         {teacher.name}
-                      </div>
-                      <div
-                        className={`text-sm ${
-                          active ? 'text-blue-100' : 'text-gray-500'
-                        }`}
-                      >
-                        {teacher.department} • {teacher.email}
                       </div>
                     </div>
                     {selected && (

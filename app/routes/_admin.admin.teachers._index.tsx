@@ -63,7 +63,7 @@ export default function ListTeacherPage() {
                         <th>សកម្មភាព</th>
                       </tr>
                     </thead>
-                    <tbody className="text-lg">
+                    <tbody className="text-base">
                       {teachers.map((item) => (
                         <tr key={item.id} className="hover">
                           <td className="text-base">{item.code}</td>
