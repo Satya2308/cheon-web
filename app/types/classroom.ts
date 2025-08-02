@@ -4,7 +4,7 @@ export type Classroom = {
   teacher: {
     id: number
     name: string
-  }
+  } | null
   assignedTimeslots: number
   totalTimeslots: number
 }

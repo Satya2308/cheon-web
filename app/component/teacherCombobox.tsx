@@ -13,16 +13,24 @@ interface TeacherComboboxProps {
   value: TeacherSearched | null
   onChange: (teacher: TeacherSearched | null) => void
   placeholder?: string
+  initialTeachers?: TeacherSearched[]
 }
 
 export default function TeacherCombobox({
   value,
   onChange,
   placeholder = 'ស្វែងរកគ្រូបង្រៀន...',
+  initialTeachers = [],
 }: TeacherComboboxProps) {
   const [query, setQuery] = useState('')
   const debouncedQuery = useDebounce(query, 1000)
   const { teachers, loading, error, searchTeachers } = useTeacherSearch()
+
+  const teacherList = query.trim() === '' ? initialTeachers : teachers
+
+  const displayTeachers = value
+    ? [value, ...teacherList.filter((t) => t.id !== value.id)]
+    : teacherList
 
   useEffect(() => {
     searchTeachers(debouncedQuery)
@@ -31,7 +39,7 @@ export default function TeacherCombobox({
   return (
     <Combobox value={value} onChange={onChange}>
       <div className="relative">
-        <div className="relative w-full cursor-default overflow-hidden rounded-lg bg-white text-left shadow-sm border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:text-sm">
+        <div className="relative w-full cursor-default rounded-lg bg-white text-left shadow-sm border border-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 sm:text-sm">
           <div className="flex items-center">
             <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 ml-3" />
             <Combobox.Input
@@ -47,7 +55,7 @@ export default function TeacherCombobox({
           </div>
         </div>
 
-        <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+        <Combobox.Options className="absolute w-full z-[99999] mt-1 max-h-60 overflow-auto rounded-md bg-white text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
           {loading && (
             <div className="relative cursor-default select-none py-2 px-4 text-gray-700">
               <div className="flex items-center space-x-2">
@@ -73,7 +81,7 @@ export default function TeacherCombobox({
             )}
 
           {!loading &&
-            teachers.map((teacher: TeacherSearched) => (
+            displayTeachers.map((teacher: TeacherSearched) => (
               <Combobox.Option
                 key={teacher.id}
                 className={({ active }) =>

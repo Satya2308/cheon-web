@@ -1,11 +1,11 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
-  name: "plumpi-light";
+  name: 'plumpi-light';
   default: true;
   prefersdark: false;
-  color-scheme: "light";
+  color-scheme: 'light';
 
   --color-base-100: oklch(100% 0 0);
   --color-base-200: oklch(96% 0 0);
@@ -38,10 +38,10 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "plumpi-dark";
+  name: 'plumpi-dark';
   default: false;
   prefersdark: true;
-  color-scheme: "dark";
+  color-scheme: 'dark';
 
   --color-base-100: oklch(13% 0.028 261.692);
   --color-base-200: oklch(21% 0.034 264.665);
@@ -95,6 +95,20 @@
   border-radius: 6px;
 }
 
+.modal {
+  z-index: 10 !important;
+  overflow: visible !important;
+}
+
+.modal-box {
+  overflow: visible !important;
+}
+
+.combobox-dropdown {
+  position: absolute !important;
+  z-index: 9999 !important; /* higher than modal */
+}
+
 .input:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px
@@ -102,7 +116,7 @@
   z-index: 1;
 }
 
-input[type="date"]::-webkit-calendar-picker-indicator {
+input[type='date']::-webkit-calendar-picker-indicator {
   display: none;
   -webkit-appearance: none;
 }
@@ -137,7 +151,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   pointer-events: auto;
 }
 
-input[type="checkbox"] {
+input[type='checkbox'] {
   color: white;
 }
 

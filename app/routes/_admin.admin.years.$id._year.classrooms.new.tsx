@@ -1,8 +1,16 @@
-import { Form, Link, useActionData, useOutletContext } from '@remix-run/react'
+import {
+  Await,
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useOutletContext,
+} from '@remix-run/react'
 import type { ActionFunctionArgs, MetaFunction } from '@vercel/remix'
 import { redirect } from '@vercel/remix'
 import axios from 'axios'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
+import { LoadingUI } from '~/component'
 import TeacherCombobox from '~/component/teacherCombobox'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
@@ -19,6 +27,12 @@ export const handle = {
 
 export const meta: MetaFunction = () => {
   return [{ title: handle.title, backable: handle.backable }]
+}
+
+export async function loader() {
+  const pendingRes = authApi.get<TeacherSearched[]>('/teachers/firstTwenty')
+  const pendingTeachers = pendingRes.then((res) => res.data)
+  return { pendingTeachers }
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -45,6 +59,7 @@ export async function action({ request }: ActionFunctionArgs) {
 }
 
 export default function CreateClassroomPage() {
+  const { pendingTeachers } = useLoaderData<typeof loader>()
   const { year } = useOutletContext<{ year: Year }>()
   const [selectedTeacher, setSelectedTeacher] =
     useState<TeacherSearched | null>(null)
@@ -54,7 +69,7 @@ export default function CreateClassroomPage() {
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box p-0 ml-3 sm:ml-0 overflow-hidden max-w-2xl max-h-[90vh] flex flex-col">
+      <div className="modal-box p-0 ml-3 sm:ml-0 max-w-2xl flex flex-col">
         <div className="flex justify-end mt-4 mr-4 flex-shrink-0">
           <Link
             to={`/admin/years/${year.id}/classrooms`}
@@ -63,7 +78,7 @@ export default function CreateClassroomPage() {
             <X size={20} />
           </Link>
         </div>
-        <main className="px-8 pb-10 overflow-y-auto flex-1">
+        <main className="px-8 pb-10 flex-1">
           <div className="pt-6 flex items-center justify-center">
             <Form method="POST" className="w-full max-w-2xl">
               <div className="grid grid-cols-1 gap-6">
@@ -74,23 +89,30 @@ export default function CreateClassroomPage() {
                   <input type="text" className="input w-full" name="name" />
                   {errorObj?.name && fieldError(errorObj.name[0])}
                 </fieldset>
-                <fieldset className="fieldset w-2/3">
-                  <legend className="fieldset-legend leading-relaxed text-base">
-                    គ្រូបន្ទុកថ្នាក់
-                  </legend>
-                  <TeacherCombobox
-                    value={selectedTeacher}
-                    onChange={setSelectedTeacher}
-                    placeholder="ស្វែងរកតាមឈ្មោះ"
-                  />
-                  <input
-                    type="hidden"
-                    name="leadTeacherId"
-                    value={selectedTeacher?.id || ''}
-                  />
-                  {errorObj?.leadTeacherId &&
-                    fieldError(errorObj.leadTeacherId[0])}
-                </fieldset>
+                <Suspense fallback={<LoadingUI />}>
+                  <Await resolve={pendingTeachers}>
+                    {(teachers) => (
+                      <fieldset className="fieldset w-2/3">
+                        <legend className="fieldset-legend leading-relaxed text-base">
+                          គ្រូបន្ទុកថ្នាក់
+                        </legend>
+                        <TeacherCombobox
+                          value={selectedTeacher}
+                          onChange={setSelectedTeacher}
+                          placeholder="ស្វែងរកតាមឈ្មោះ"
+                          initialTeachers={teachers}
+                        />
+                        <input
+                          type="hidden"
+                          name="leadTeacherId"
+                          value={selectedTeacher?.id || ''}
+                        />
+                        {errorObj?.leadTeacherId &&
+                          fieldError(errorObj.leadTeacherId[0])}
+                      </fieldset>
+                    )}
+                  </Await>
+                </Suspense>
                 <input type="hidden" name="yearId" value={year.id} />
               </div>
               <div className="mt-10 flex gap-2">

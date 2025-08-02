@@ -1,4 +1,5 @@
 import {
+  Await,
   Form,
   Link,
   useActionData,
@@ -15,9 +16,9 @@ import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
-import { useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
-import { toast } from '~/component'
+import { LoadingUI, toast } from '~/component'
 import { Year } from '~/types/year'
 import {
   Classroom,
@@ -42,9 +43,11 @@ export async function loader({ params }: LoaderFunctionArgs) {
   if (!id || !cid) throw new Response('Not found', { status: 404 })
   try {
     const classroom = await authApi
-      .patch<Classroom>(`/years/${id}/classrooms/${cid}`)
+      .get<Classroom>(`/years/${id}/classrooms/${cid}`)
       .then((res) => res.data)
-    return { classroom }
+    const pendingRes = authApi.get<TeacherSearched[]>('/teachers/firstTwenty')
+    const pendingTeachers = pendingRes.then((res) => res.data)
+    return { classroom, pendingTeachers }
   } catch (err) {
     if (axios.isAxiosError(err)) {
       const status = err.response?.status
@@ -82,7 +85,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
 }
 
 export default function UpdateClassroomPage() {
-  const { classroom } = useLoaderData<typeof loader>()
+  const { classroom, pendingTeachers } = useLoaderData<typeof loader>()
   const { year } = useOutletContext<{ year: Year }>()
   const actionData = useActionData<typeof action>()
   const [selectedTeacher, setSelectedTeacher] =
@@ -113,13 +116,16 @@ export default function UpdateClassroomPage() {
 
   return (
     <dialog className="modal modal-open">
-      <div className="modal-box p-0 ml-3 sm:ml-0 overflow-hidden max-w-xl max-h-[90vh] flex flex-col">
+      <div className="modal-box p-0 ml-3 sm:ml-0 max-w-xl flex flex-col">
         <div className="flex justify-end mt-4 mr-4 flex-shrink-0">
-          <Link to="/admin/years" className="btn btn-sm btn-ghost btn-square">
+          <Link
+            to={`/admin/years/${year.id}/classrooms`}
+            className="btn btn-sm btn-ghost btn-square"
+          >
             <X size={20} />
           </Link>
         </div>
-        <main className="px-8 pb-10 overflow-y-auto flex-1">
+        <main className="px-8 pb-10 flex-1">
           <div className="pt-6 flex items-center justify-center">
             <Form
               method="PATCH"
@@ -139,23 +145,30 @@ export default function UpdateClassroomPage() {
                   />
                   {errorObj?.name && fieldError(errorObj.name[0])}
                 </fieldset>
-                <fieldset className="fieldset w-2/3">
-                  <legend className="fieldset-legend leading-relaxed text-base">
-                    គ្រូបន្ទុកថ្នាក់
-                  </legend>
-                  <TeacherCombobox
-                    value={selectedTeacher}
-                    onChange={setSelectedTeacher}
-                    placeholder="ស្វែងរកតាមឈ្មោះ"
-                  />
-                  <input
-                    type="hidden"
-                    name="leadTeacherId"
-                    value={selectedTeacher?.id || ''}
-                  />
-                  {errorObj?.leadTeacherId &&
-                    fieldError(errorObj.leadTeacherId[0])}
-                </fieldset>
+                <Suspense fallback={<LoadingUI />}>
+                  <Await resolve={pendingTeachers}>
+                    {(teachers) => (
+                      <fieldset className="fieldset w-2/3">
+                        <legend className="fieldset-legend leading-relaxed text-base">
+                          គ្រូបន្ទុកថ្នាក់
+                        </legend>
+                        <TeacherCombobox
+                          value={selectedTeacher}
+                          onChange={setSelectedTeacher}
+                          placeholder="ស្វែងរកតាមឈ្មោះ"
+                          initialTeachers={teachers}
+                        />
+                        <input
+                          type="hidden"
+                          name="leadTeacherId"
+                          value={selectedTeacher?.id || ''}
+                        />
+                        {errorObj?.leadTeacherId &&
+                          fieldError(errorObj.leadTeacherId[0])}
+                      </fieldset>
+                    )}
+                  </Await>
+                </Suspense>
               </div>
               <div className="mt-10 flex gap-2">
                 <button
@@ -167,7 +180,7 @@ export default function UpdateClassroomPage() {
                 </button>
                 <Link
                   className="btn btn-ghost w-32"
-                  to="/admin/years"
+                  to={`/admin/years/${year.id}/classrooms`}
                   type="button"
                 >
                   ចេញ
