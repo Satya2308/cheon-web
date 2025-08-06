@@ -33,7 +33,6 @@ export default function TeacherDetailPage() {
         setLoading(true)
         setError(null)
         const res = await authApi.get<Teacher>(`/teachers/${id}`)
-        console.log('res', res)
         setTeacher(res.data)
       } catch (err) {
         if (axios.isAxiosError(err)) {
