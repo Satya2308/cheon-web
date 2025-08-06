@@ -1,16 +1,7 @@
-import {
-  Form,
-  redirect,
-  useLoaderData,
-  useNavigate,
-  useNavigation,
-} from '@remix-run/react'
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from '@vercel/remix'
+import { redirect, useNavigate, useParams } from '@remix-run/react'
+import type { ActionFunctionArgs, MetaFunction } from '@vercel/remix'
 import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { Teacher } from '~/types/teacher'
 import { authApi } from '~/utils/axios'
 
@@ -23,78 +14,109 @@ export const meta: MetaFunction = () => {
   return [{ title: handle.title, backable: handle.backable }]
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const id = params.id
-  if (!id) throw new Response('Not found', { status: 404 })
-  try {
-    const teacher = await authApi
-      .get<Teacher>(`/teachers/${id}`)
-      .then((res) => res.data)
-    return { teacher }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
-export async function action({ params }: ActionFunctionArgs) {
-  const id = params.id
-  if (!id) throw new Response('Not found', { status: 404 })
-  try {
-    const res = await authApi.delete(`/teachers/${id}`)
-    if (res.status === 200) return redirect('/admin/teachers')
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
 export default function DeleteTeacherPage() {
-  const { teacher } = useLoaderData<typeof loader>()
-  const navigation = useNavigation()
+  const { id } = useParams()
+  const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [teacher, setTeacher] = useState<Teacher | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
-  const actionPath = `/admin/teachers/${teacher.id}/delete`
-  const isSubmitting = navigation.formAction === actionPath
+
+  useEffect(() => {
+    const fetchTeacher = async () => {
+      if (!id) {
+        setError('Teacher ID not found')
+        setLoading(false)
+        return
+      }
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await authApi.get<Teacher>(`/teachers/${id}`)
+        setTeacher(res.data)
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const status = error.response?.status
+          if (status === 404) setError('Teacher not found!')
+          if (status === 500) setError('Server error occured!')
+          else setError('Failed to load teacher data')
+        } else {
+          setError('An unexpected error occurred')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTeacher()
+  }, [id])
+
+  const handleSubmit = async (teacher: Teacher) => {
+    try {
+      setIsSubmitting(true)
+      setError(null)
+      const res = await authApi.delete(`/teachers/${teacher.id}`)
+      if (res.data.message) navigate('/admin/teachers')
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 404) setError('Teacher not found')
+        else if (status === 500) setError('Server error occurred')
+        else setError('Failed to update teacher')
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
 
   return (
     <div className="modal modal-open">
       <div className="modal-box">
-        <h3 className="text-lg font-bold">
-          តើអ្នកប្រាកដទេថាអ្នកចង់លុបលោកគ្រូនេះ?
-        </h3>
-        <p className="my-5">ការលុបមិនអាចត្រឡប់វិញបានទេ។</p>
-        <Form method="DELETE" className="flex gap-1 mt-4 justify-end">
-          <button
-            type="button"
-            className="btn btn-ghost"
-            disabled={isSubmitting}
-            onClick={() => navigate(-1)}
-          >
-            ចេញ
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <span className="flex gap-2 items-center">
-                <span className="loading loading-spinner" />
-                <span>កំពុងលប់...</span>
-              </span>
-            ) : (
-              'លប់'
-            )}
-          </button>
-        </Form>
+        {error && (
+          <div className="alert alert-error">
+            <span>{error || 'Teacher not found'}</span>
+          </div>
+        )}
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        )}
+        {teacher && (
+          <>
+            {' '}
+            <h3 className="text-lg font-bold">
+              តើអ្នកប្រាកដទេថាអ្នកចង់លុបលោកគ្រូនេះ?
+            </h3>
+            <p className="my-5">ការលុបមិនអាចត្រឡប់វិញបានទេ។</p>
+            <form className="flex gap-1 mt-4 justify-end">
+              <button
+                type="button"
+                className="btn btn-ghost"
+                disabled={isSubmitting}
+                onClick={() => navigate(-1)}
+              >
+                ចេញ
+              </button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={() => handleSubmit(teacher)}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <span className="flex gap-2 items-center">
+                    <span className="loading loading-spinner" />
+                    <span>កំពុងលប់...</span>
+                  </span>
+                ) : (
+                  'លប់'
+                )}
+              </button>
+            </form>
+          </>
+        )}
       </div>
     </div>
   )

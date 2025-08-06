@@ -1,6 +1,6 @@
-import { Form, Link, useActionData, useNavigate } from '@remix-run/react'
-import type { ActionFunctionArgs, MetaFunction } from '@vercel/remix'
-import { redirect } from '@vercel/remix'
+import { Link, useNavigate } from '@remix-run/react'
+import type { MetaFunction } from '@vercel/remix'
+import { useState } from 'react'
 import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
@@ -10,36 +10,50 @@ import { validateCreateTeacher } from '~/zod/teacher'
 
 export const handle = {
   title: 'គ្រូ',
-  backable: true,
 }
 
 export const meta: MetaFunction = () => {
-  return [{ title: handle.title, backable: handle.backable }]
-}
-
-export async function action({ request }: ActionFunctionArgs) {
-  const payload = await request.formData()
-  const { data, error } = await validateCreateTeacher(payload)
-  if (!data) return { error }
-  try {
-    const res = await authApi.post<CreateTeacher>('/teachers', data)
-    if (res.status === 201) return redirect('/admin/teachers')
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 400)
-        return { error: err.response?.data?.message as ValidationErrorTeacher }
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
+  return [{ title: handle.title }]
 }
 
 export default function CreateTeacherPage() {
-  const actionData = useActionData<typeof action>()
-  const error = actionData?.error
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<ValidationErrorTeacher | string | null>(
+    null
+  )
   const errorObj = error && typeof error === 'object' ? error : null
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const { data, error: validationError } = await validateCreateTeacher(
+      formData
+    )
+    if (!data) {
+      setError(validationError)
+      return
+    }
+    try {
+      setLoading(true)
+      setError(null)
+      const res = await authApi.post<CreateTeacher>('/teachers', data)
+      if (res.status === 201) navigate('/admin/teachers')
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 400)
+          setError(err.response?.data?.message as ValidationErrorTeacher)
+        else if (status === 404) setError('Service not found')
+        else if (status === 500) setError('Server error occurred')
+        else setError('Failed to create teacher')
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <dialog className="modal modal-open">
@@ -54,37 +68,45 @@ export default function CreateTeacherPage() {
         </div>
         <main className="px-8 pb-10 overflow-y-auto flex-1">
           <div className="pt-6 flex items-center justify-center">
-            <Form method="POST" className="w-full max-w-3xl">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <fieldset className="fieldset">
+            <form onSubmit={handleSubmit} className="w-full max-w-3xl">
+              {error && typeof error === 'string' && (
+                <div className="alert alert-error mb-6">
+                  <span>{error}</span>
+                </div>
+              )}
+              <fieldset
+                disabled={loading}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-6"
+              >
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឈ្មោះ
                   </legend>
                   <input type="text" className="input w-full" name="name" />
                   {errorObj?.name && fieldError(errorObj.name[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     លេខកូដ
                   </legend>
                   <input type="text" className="input w-full" name="code" />
                   {errorObj?.code && fieldError(errorObj.code[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     លេខទូរស័ព្ទ
                   </legend>
                   <input type="text" className="input w-full" name="phone" />
                   {errorObj?.phone && fieldError(errorObj.phone[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     មុខវិជ្ជាបង្រៀន
                   </legend>
                   <input type="text" className="input w-full" name="subject" />
                   {errorObj?.subject && fieldError(errorObj.subject[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base font-semibold">
                     ភេទ
                   </legend>
@@ -93,22 +115,22 @@ export default function CreateTeacherPage() {
                     <option value="MALE">ប្រុស</option>
                   </select>
                   {errorObj?.gender && fieldError(errorObj.gender[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ថ្ងៃកំណើត
                   </legend>
                   <input type="date" className="input" name="dob" />
                   {errorObj?.dob && fieldError(errorObj.dob[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ក្របខណ្ឌ
                   </legend>
                   <input type="text" className="input w-full" name="krobkan" />
                   {errorObj?.krobkan && fieldError(errorObj.krobkan[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឯកទេសទី​ ​១
                   </legend>
@@ -118,8 +140,8 @@ export default function CreateTeacherPage() {
                     name="profession1"
                   />
                   {errorObj?.profession1 && fieldError(errorObj.profession1[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឯកទេសទី ​២
                   </legend>
@@ -129,28 +151,35 @@ export default function CreateTeacherPage() {
                     name="profession2"
                   />
                   {errorObj?.profession2 && fieldError(errorObj.profession2[0])}
-                </fieldset>
-                <fieldset className="fieldset">
+                </div>
+                <div className="fieldset">
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឋានន្តរស័ក្ត
                   </legend>
                   <input type="text" className="input w-full" name="rank" />
                   {errorObj?.rank && fieldError(errorObj.rank[0])}
-                </fieldset>
-              </div>
+                </div>
+              </fieldset>
               <div className="mt-10 flex gap-2">
-                <button className="btn btn-primary flex-1" type="submit">
-                  បង្កើត
-                </button>
-                <Link
-                  to="/admin/teachers"
-                  className="btn btn-ghost w-32"
-                  type="button"
+                <button
+                  className="btn btn-primary flex-1"
+                  type="submit"
+                  disabled={loading}
                 >
+                  {loading ? (
+                    <>
+                      <span className="loading loading-spinner loading-sm"></span>
+                      កំពុងបង្កើត...
+                    </>
+                  ) : (
+                    'បង្កើត'
+                  )}
+                </button>
+                <Link to="/admin/teachers" className="btn btn-ghost w-32">
                   ចេញ
                 </Link>
               </div>
-            </Form>
+            </form>
           </div>
         </main>
       </div>
