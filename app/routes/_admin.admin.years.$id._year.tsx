@@ -1,4 +1,4 @@
-import { Outlet, useLoaderData, useMatches } from '@remix-run/react'
+import { Link, Outlet, useLoaderData, useMatches } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@vercel/remix'
 import axios from 'axios'
 import { X } from '~/icons'
@@ -54,27 +54,27 @@ export default function AdminYearLayout() {
     <>
       <div className="flex justify-between mx-3 pb-3 mb-5 border-b border-b-base-200">
         <span className="text-xl">{year.name}</span>
-        <a
+        <Link
           className="btn btn-sm btn-square btn-ghost"
-          href="/admin/years"
+          to="/admin/years"
           title="Years"
         >
           <X size={20} />
-        </a>
+        </Link>
       </div>
       <div className="flex gap-2">
         <aside className="w-48">
           <ul className="menu w-full">
             {items.map((item) => (
               <li key={item.title} className="text-lg font-semibold">
-                <a
+                <Link
                   className={
                     isActive(item.href) ? 'bg-gray-800 text-white' : ''
                   }
-                  href={item.href}
+                  to={item.href}
                 >
                   {item.title}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>

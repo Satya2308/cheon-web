@@ -13,12 +13,11 @@ import type {
 } from '@vercel/remix'
 import axios from 'axios'
 import { Classroom } from '~/types/classroom'
-import { Teacher } from '~/types/teacher'
 import { Year } from '~/types/year'
 import { authApi } from '~/utils/axios'
 
 export const handle = {
-  title: 'គ្រូ',
+  title: 'ឆ្នាំ',
   backable: true,
 }
 

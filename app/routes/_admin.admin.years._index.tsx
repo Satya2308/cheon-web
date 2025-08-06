@@ -1,4 +1,4 @@
-import { Await, useLoaderData } from '@remix-run/react'
+import { Await, Link, useLoaderData } from '@remix-run/react'
 import type { MetaFunction } from '@vercel/remix'
 import { Suspense } from 'react'
 import { EmptyState, LoadingUI } from '~/component'
@@ -36,10 +36,10 @@ export default function ListYearPage() {
         ].join(' ')}
       >
         <div />
-        <a href="/admin/years/new" className="btn btn-ghost bg-none text-lg">
+        <Link to="/admin/years/new" className="btn btn-ghost bg-none text-lg">
           <Plus size={20} />
           បង្កើតថ្មី
-        </a>
+        </Link>
       </header>
       <Suspense fallback={<LoadingUI />}>
         <Await resolve={pendingYears}>
@@ -72,24 +72,24 @@ export default function ListYearPage() {
                           </td>
                           <td>
                             <div className="flex gap-1">
-                              <a
-                                href={`/admin/years/${item.id}/classrooms`}
+                              <Link
+                                to={`/admin/years/${item.id}/classrooms`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Eye size={16} />
-                              </a>
-                              <a
-                                href={`/admin/years/${item.id}/edit`}
+                              </Link>
+                              <Link
+                                to={`/admin/years/${item.id}/edit`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Pen size={16} />
-                              </a>
-                              <a
-                                href={`/admin/years/${item.id}/delete`}
+                              </Link>
+                              <Link
+                                to={`/admin/years/${item.id}/delete`}
                                 className="btn btn-sm btn-square"
                               >
                                 <Trash2 size={16} />
-                              </a>
+                              </Link>
                             </div>
                           </td>
                         </tr>

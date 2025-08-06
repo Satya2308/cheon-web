@@ -1,3 +1,4 @@
+import { Link } from '@remix-run/react'
 import type { ReactNode } from 'react'
 import { BeanOff, Plus } from '~/icons'
 
@@ -20,10 +21,10 @@ export default function EmptyState({
       <p>{message ? message : 'គ្មានទិន្នន័យ'}</p>
       {actionElement ||
         (actionUrl && (
-          <a href={actionUrl} className="btn btn-sm btn-primary">
+          <Link to={actionUrl} className="btn btn-sm btn-primary">
             <Plus size={16} />
             {actionLabel}
-          </a>
+          </Link>
         ))}
     </div>
   )

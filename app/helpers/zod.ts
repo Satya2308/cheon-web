@@ -26,6 +26,6 @@ export function flatten<Input, Output>(
 	res: z.SafeParseReturnType<Input, Output>
 ) {
 	const ok = res.success
-	if (ok) return { ok, data: res.data, error: null }
-	return { ok, data: null, error: res.error.flatten().fieldErrors }
+	if (ok) return { data: res.data, error: null }
+	return { data: null, error: res.error.flatten().fieldErrors }
 }

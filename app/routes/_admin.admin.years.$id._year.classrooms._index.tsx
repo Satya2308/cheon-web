@@ -1,4 +1,4 @@
-import { Await, useLoaderData, useOutletContext } from '@remix-run/react'
+import { Await, Link, useLoaderData, useOutletContext } from '@remix-run/react'
 import type { LoaderFunctionArgs, MetaFunction } from '@vercel/remix'
 import { Suspense } from 'react'
 import { EmptyState, LoadingUI } from '~/component'
@@ -58,13 +58,13 @@ export default function ListClassroomPage() {
                 >
                   <div className="text-2xl font-semibold">ថ្នាក់រៀន</div>
                   <div className="flex gap-2"></div>
-                  <a
-                    href={`/admin/years/${year.id}/classrooms/new`}
+                  <Link
+                    to={`/admin/years/${year.id}/classrooms/new`}
                     className="btn btn-ghost bg-none text-lg"
                   >
                     <Plus size={18} />
                     បង្កើតថ្មី
-                  </a>
+                  </Link>
                 </header>
                 <table className="table table-auto">
                   <thead className="uppercase bg-base-200 text-lg text-black">
@@ -83,24 +83,24 @@ export default function ListClassroomPage() {
                         <td>{`${item.assignedTimeslots}/${item.totalTimeslots}`}</td>
                         <td>
                           <div className="flex gap-1">
-                            <a
-                              href={`/admin/years/${year.id}/classrooms/${item.id}`}
+                            <Link
+                              to={`/admin/years/${year.id}/classrooms/${item.id}`}
                               className="btn btn-sm btn-square"
                             >
                               <Eye size={16} />
-                            </a>
-                            <a
-                              href={`/admin/years/${year.id}/classrooms/${item.id}/edit`}
+                            </Link>
+                            <Link
+                              to={`/admin/years/${year.id}/classrooms/${item.id}/edit`}
                               className="btn btn-sm btn-square"
                             >
                               <Pen size={16} />
-                            </a>
-                            <a
-                              href={`/admin/years/${year.id}/classrooms/${item.id}/delete`}
+                            </Link>
+                            <Link
+                              to={`/admin/years/${year.id}/classrooms/${item.id}/delete`}
                               className="btn btn-sm btn-square"
                             >
                               <Trash2 size={16} />
-                            </a>
+                            </Link>
                           </div>
                         </td>
                       </tr>

@@ -1,3 +1,4 @@
+import { Link } from '@remix-run/react'
 import clsx from 'clsx'
 import { Teacher, Year } from '~/icons'
 import type { IconProps } from '~/types/icons'
@@ -29,10 +30,10 @@ export default function SideMenu({ pathname }: Props) {
   const item = (title: string, href: string, Icon: React.FC<IconProps>) => {
     const active = isActive(href) ? 'bg-gray-800 text-white' : ''
     return (
-      <a href={href} title={title} className={clsx('space-x-2', active)}>
+      <Link to={href} title={title} className={clsx('space-x-2', active)}>
         <Icon size={20} />
         <span className="font-semibold">{title}</span>
-      </a>
+      </Link>
     )
   }
 
