@@ -1,4 +1,4 @@
-import { Link, useParams } from '@remix-run/react'
+import { Link, useNavigate, useParams } from '@remix-run/react'
 import type { MetaFunction } from '@vercel/remix'
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
@@ -7,7 +7,6 @@ import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
 import { validateUpdateTeacher } from '~/zod/teacher'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
-import { toast } from '~/component'
 import { Teacher, UpdateTeacher, ValidationErrorTeacher } from '~/types/teacher'
 
 export const handle = {
@@ -28,6 +27,7 @@ export default function UpdateTeacherPage() {
     null
   )
   const errorObj = error && typeof error === 'object' ? error : null
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchTeacher = async () => {
@@ -78,7 +78,7 @@ export default function UpdateTeacherPage() {
         return
       }
       const res = await authApi.patch<UpdateTeacher>(`/teachers/${id}`, data)
-      if (res.data.message) toast(res.data.message)
+      if (res.data.message) navigate('/admin/teachers')
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const status = err.response?.status

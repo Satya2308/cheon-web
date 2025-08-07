@@ -1,7 +1,7 @@
-import { Form, Link, useActionData, useNavigate } from '@remix-run/react'
-import type { ActionFunctionArgs, MetaFunction } from '@vercel/remix'
-import { redirect } from '@vercel/remix'
+import { Link, useNavigate } from '@remix-run/react'
+import type { MetaFunction } from '@vercel/remix'
 import axios from 'axios'
+import { useState } from 'react'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { CreateYear, ValidationErrorYear } from '~/types/year'
@@ -17,29 +17,40 @@ export const meta: MetaFunction = () => {
   return [{ title: handle.title, backable: handle.backable }]
 }
 
-export async function action({ request }: ActionFunctionArgs) {
-  const payload = await request.formData()
-  const { data, error } = await validateCreateYear(payload)
-  if (!data) return { error }
-  try {
-    const res = await authApi.post<CreateYear>('/years', data)
-    if (res.status === 201) return redirect('/admin/years')
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 400)
-        return { error: err.response?.data?.message as ValidationErrorYear }
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
 export default function CreateYearPage() {
-  const actionData = useActionData<typeof action>()
-  const error = actionData?.error
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<ValidationErrorYear | string | null>(null)
   const errorObj = error && typeof error === 'object' ? error : null
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+    const { data, error: validationError } = await validateCreateYear(formData)
+    if (!data) {
+      setError(validationError)
+      return
+    }
+    try {
+      setLoading(true)
+      setError(null)
+      const res = await authApi.post<CreateYear>('/years', data)
+      if (res.status === 201) navigate('/admin/years')
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 400)
+          setError(err.response?.data?.message as ValidationErrorYear)
+        else if (status === 404) setError('Service not found')
+        else if (status === 500) setError('Server error occurred')
+        else setError('Failed to create year')
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <dialog className="modal modal-open">
@@ -51,9 +62,14 @@ export default function CreateYearPage() {
         </div>
         <main className="px-8 pb-10 overflow-y-auto flex-1">
           <div className="pt-6 flex items-center justify-center">
-            <Form method="POST" className="w-full max-w-xl">
+            <form onSubmit={handleSubmit} className="w-full max-w-xl">
+              {error && typeof error === 'string' && (
+                <div className="alert alert-error mb-6">
+                  <span>{error}</span>
+                </div>
+              )}
               <div className="grid grid-cols-1 gap-6">
-                <fieldset className="fieldset">
+                <fieldset className="fieldset" disabled={loading}>
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឈ្មោះ
                   </legend>
@@ -84,7 +100,7 @@ export default function CreateYearPage() {
                   ចេញ
                 </Link>
               </div>
-            </Form>
+            </form>
           </div>
         </main>
       </div>

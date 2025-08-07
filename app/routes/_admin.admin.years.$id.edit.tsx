@@ -1,22 +1,11 @@
-import {
-  Form,
-  Link,
-  useActionData,
-  useLoaderData,
-  useSubmit,
-} from '@remix-run/react'
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from '@vercel/remix'
+import { Form, Link, useNavigate, useParams } from '@remix-run/react'
+import type { MetaFunction } from '@vercel/remix'
 import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
-import { toast } from '~/component'
 import { UpdateYear, ValidationErrorYear, Year } from '~/types/year'
 import { validateUpdateYear } from '~/zod/year'
 
@@ -29,69 +18,83 @@ export const meta: MetaFunction = () => {
   return [{ title: handle.title, backable: handle.backable }]
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { id } = params
-  if (!id) throw new Response('Not found', { status: 404 })
-  try {
-    const year = await authApi.get<Year>(`/years/${id}`).then((res) => res.data)
-    return { year }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
-export async function action({ request, params }: ActionFunctionArgs) {
-  const { id } = params
-  if (!id) throw new Response('Not found', { status: 404 })
-  const payload = await request.formData()
-  const { data, error } = await validateUpdateYear(payload)
-  if (!data) return { error }
-  try {
-    const res = await authApi.patch<UpdateYear>(`/years/${id}`, data)
-    return { message: res.data.message, submittedAt: Date.now() }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 400)
-        return { error: err.response?.data?.message as ValidationErrorYear }
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
 export default function UpdateYearPage() {
-  const { year } = useLoaderData<typeof loader>()
-  const actionData = useActionData<typeof action>()
+  const { id } = useParams()
   const yearForm = useRef<HTMLFormElement | null>(null)
-  const submit = useSubmit()
-  const error = actionData?.error
+  const [year, setYear] = useState<Year | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<ValidationErrorYear | string | null>(null)
   const errorObj = error && typeof error === 'object' ? error : null
+  const navigate = useNavigate()
 
   useEffect(() => {
-    if (actionData?.message) toast(actionData?.message)
-  }, [actionData?.submittedAt])
-
-  const handleSubmit = (t: Year) => {
-    const f = yearForm.current
-    if (f) {
-      const a = new FormData(f)
-      const b = getFormDataFromObject(t)
-      const formData = getUpdatedFormData(a, b)
-      if (Array.from(formData.keys()).length > 0) {
-        submit(formData, {
-          action: `/admin/years/${t.id}/edit`,
-          method: 'PATCH',
-        })
+    const fetchYear = async () => {
+      if (!id) {
+        setError('Year ID not found')
+        setLoading(false)
+        return
+      }
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await authApi.get<Year>(`/years/${id}`)
+        setYear(res.data)
+      } catch (err) {
+        if (axios.isAxiosError(err)) {
+          const status = err.response?.status
+          if (status === 404) setError('Year not found')
+          else if (status === 500) setError('Server error occurred')
+          else setError('Failed to load year data')
+        } else {
+          setError('An unexpected error occurred')
+        }
+      } finally {
+        setLoading(false)
       }
     }
+    fetchYear()
+  }, [id])
+
+  const handleSubmit = async (yearData: Year) => {
+    const form = yearForm.current
+    if (!form) return
+    try {
+      setSubmitting(true)
+      setError(null)
+      const currentFormData = new FormData(form)
+      const originalFormData = getFormDataFromObject(yearData)
+      const updatedFormData = getUpdatedFormData(
+        currentFormData,
+        originalFormData
+      )
+      if (Array.from(updatedFormData.keys()).length === 0) return
+      const { data, error: validationError } = await validateUpdateYear(
+        updatedFormData
+      )
+      if (!data) {
+        setError(validationError)
+        return
+      }
+      const res = await authApi.patch<UpdateYear>(`/years/${id}`, data)
+      if (res.data.message) navigate('/admin/years')
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 400)
+          setError(err.response?.data?.message as ValidationErrorYear)
+        else if (status === 404) setError('Year not found')
+        else if (status === 500) setError('Server error occurred')
+        else setError('Failed to update teacher')
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setSubmitting(false)
+    }
   }
+
+  if (!year) return null
 
   return (
     <dialog className="modal modal-open">
@@ -102,10 +105,20 @@ export default function UpdateYearPage() {
           </Link>
         </div>
         <main className="px-8 pb-10 overflow-y-auto flex-1">
+          {loading && (
+            <div className="flex justify-center items-center py-8">
+              <span className="loading loading-spinner loading-lg"></span>
+            </div>
+          )}
           <div className="pt-6 flex items-center justify-center">
-            <Form method="PATCH" className="w-full max-w-xl" ref={yearForm}>
+            <form className="w-full max-w-xl" ref={yearForm}>
+              {error && typeof error === 'string' && (
+                <div className="alert alert-error mb-6">
+                  <span>{error}</span>
+                </div>
+              )}
               <div className="grid grid-cols-1 gap-6">
-                <fieldset className="fieldset">
+                <fieldset className="fieldset" disabled={submitting}>
                   <legend className="fieldset-legend leading-relaxed text-base">
                     ឈ្មោះ
                   </legend>
@@ -139,6 +152,7 @@ export default function UpdateYearPage() {
                   className="btn btn-primary flex-1"
                   type="button"
                   onClick={() => handleSubmit(year)}
+                  disabled={submitting}
                 >
                   កែតម្រូវ
                 </button>
@@ -150,7 +164,7 @@ export default function UpdateYearPage() {
                   ចេញ
                 </Link>
               </div>
-            </Form>
+            </form>
           </div>
         </main>
       </div>

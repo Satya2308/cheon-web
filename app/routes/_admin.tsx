@@ -11,7 +11,7 @@ import { useAuth } from '~/contexts/authContext'
 import { ChevronLeft, Logout } from '~/icons'
 
 export default function AdminLayout() {
-  const { isAuthenticated } = useAuth()
+  const { isAuthenticated, isLoading } = useAuth()
   const location = useLocation()
   const matches = useMatches()
   const m = matches.slice(-1)[0] // last item
@@ -20,8 +20,8 @@ export default function AdminLayout() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!isAuthenticated) navigate('/login', { replace: true })
-  }, [isAuthenticated, navigate])
+    if (!isLoading && !isAuthenticated) navigate('/login', { replace: true })
+  }, [isAuthenticated, isLoading, navigate])
 
   const user = {
     firstName: 'John',

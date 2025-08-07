@@ -5,6 +5,7 @@ import {
   useNavigate,
   useNavigation,
   useOutletContext,
+  useParams,
 } from '@remix-run/react'
 import type {
   ActionFunctionArgs,
@@ -12,6 +13,7 @@ import type {
   MetaFunction,
 } from '@vercel/remix'
 import axios from 'axios'
+import { useEffect, useState } from 'react'
 import { Classroom } from '~/types/classroom'
 import { Year } from '~/types/year'
 import { authApi } from '~/utils/axios'
@@ -25,56 +27,89 @@ export const meta: MetaFunction = () => {
   return [{ title: handle.title, backable: handle.backable }]
 }
 
-export async function loader({ params }: LoaderFunctionArgs) {
-  const { id, cid } = params
-  if (!id || !cid) throw new Response('Not found', { status: 404 })
-  try {
-    const classroom = await authApi
-      .get<Classroom>(`/years/${id}/classrooms/${cid}`)
-      .then((res) => res.data)
-    return { classroom }
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
-export async function action({ params }: ActionFunctionArgs) {
-  const { id, cid } = params
-  if (!id || !cid) throw new Response('Not found', { status: 404 })
-  try {
-    const res = await authApi.delete(`/years/${id}/classrooms/${cid}`)
-    if (res.status === 200) return redirect(`/admin/years/${id}/classrooms`)
-  } catch (err) {
-    if (axios.isAxiosError(err)) {
-      const status = err.response?.status
-      if (status === 404) throw new Response('Not found', { status: 404 })
-      throw new Response('Server error', { status: 500 })
-    }
-    throw new Response('Unexpected error', { status: 500 })
-  }
-}
-
 export default function DeleteClassroomPage() {
-  const { classroom } = useLoaderData<typeof loader>()
   const { year } = useOutletContext<{ year: Year }>()
-  const navigation = useNavigation()
+  const { id, cid } = useParams()
+  const [loading, setLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [classroom, setClassroom] = useState<Classroom | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
-  const actionPath = `/adminyears/${year.id}/classrooms/${classroom.id}/delete`
-  const isSubmitting = navigation.formAction === actionPath
+
+  useEffect(() => {
+    const fetchClassroom = async () => {
+      if (!id) {
+        setError('Classroom ID not found')
+        setLoading(false)
+        return
+      }
+      try {
+        setLoading(true)
+        setError(null)
+        const res = await authApi.get<Classroom>(
+          `/years/${year.id}/classrooms/${cid}`
+        )
+        setClassroom(res.data)
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          const status = error.response?.status
+          if (status === 404) setError('Classroom not found!')
+          if (status === 500) setError('Server error occured!')
+          else setError('Failed to load classroom data')
+        } else {
+          setError('An unexpected error occurred')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchClassroom()
+  }, [id])
+
+  const handleSubmit = async (classroom: Classroom) => {
+    try {
+      setIsSubmitting(true)
+      setError(null)
+      const res = await authApi.delete(
+        `/years/${year.id}/classrooms/${classroom.id}`
+      )
+      console.log('res', res)
+      if (res.data.message)
+        return navigate(`/admin/years/${year.id}/classrooms`)
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status
+        if (status === 404) setError('Classroom not found')
+        else if (status === 500) setError('Server error occurred')
+        else setError('Failed to update classroom')
+      } else {
+        setError('An unexpected error occurred')
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  if (!classroom) return
 
   return (
     <div className="modal modal-open">
       <div className="modal-box">
+        {error && (
+          <div className="alert alert-error">
+            <span>{error || 'Teacher not found'}</span>
+          </div>
+        )}
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <span className="loading loading-spinner loading-lg"></span>
+          </div>
+        )}
         <h3 className="text-lg font-bold">
           តើអ្នកប្រាកដទេថាអ្នកចង់លុបថ្នាក់នេះ?
         </h3>
         <p className="my-5">ការលុបមិនអាចត្រឡប់វិញបានទេ។</p>
-        <Form method="DELETE" className="flex gap-1 mt-4 justify-end">
+        <form className="flex gap-1 mt-4 justify-end">
           <button
             type="button"
             className="btn btn-ghost"
@@ -86,6 +121,7 @@ export default function DeleteClassroomPage() {
           <button
             type="submit"
             className="btn btn-primary"
+            onClick={() => handleSubmit(classroom)}
             disabled={isSubmitting}
           >
             {isSubmitting ? (
@@ -97,7 +133,7 @@ export default function DeleteClassroomPage() {
               'លប់'
             )}
           </button>
-        </Form>
+        </form>
       </div>
     </div>
   )
