@@ -73,7 +73,6 @@ export default function DeleteClassroomPage() {
       const res = await authApi.delete(
         `/years/${year.id}/classrooms/${classroom.id}`
       )
-      console.log('res', res)
       if (res.data.message)
         return navigate(`/admin/years/${year.id}/classrooms`)
     } catch (err) {

@@ -9,6 +9,15 @@ export type Classroom = {
   totalTimeslots: number
 }
 
+export type DetailClassroom = {
+  id: number
+  name: string
+  teacher: {
+    id: number
+    name: string
+  } | null
+}
+
 export type ValidationErrorClassroom = {
   name?: string[]
   yearId?: string[]
@@ -25,4 +34,15 @@ export type UpdateClassroom = {
 
 export type DeleteClassroom = {
   message: string
+}
+
+export type Timeslot = {
+  id: number
+  label: string
+  duration: string
+  sortOrder: number
+  teacher: {
+    id: number
+    name: string
+  } | null
 }

@@ -11,6 +11,7 @@ import ChevronLast from './chevronLast'
 import ChevronRight from './chevronRight'
 import X from './x'
 import Year from './year'
+import Person from './person'
 
 export {
   Teacher,
@@ -26,4 +27,5 @@ export {
   ChevronRight,
   X,
   Year,
+  Person,
 }

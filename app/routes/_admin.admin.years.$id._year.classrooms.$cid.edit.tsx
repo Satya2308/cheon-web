@@ -1,26 +1,17 @@
 import {
-  Await,
-  Form,
   Link,
-  useActionData,
-  useLoaderData,
   useNavigate,
   useOutletContext,
   useParams,
-  useSubmit,
 } from '@remix-run/react'
-import type {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  MetaFunction,
-} from '@vercel/remix'
+import type { MetaFunction } from '@vercel/remix'
 import axios from 'axios'
 import fieldError from '~/helpers/fieldError'
 import { X } from '~/icons'
 import { authApi } from '~/utils/axios'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { getFormDataFromObject, getUpdatedFormData } from '~/helpers/form'
-import { LoadingUI, toast } from '~/component'
+import { toast } from '~/component'
 import { Year } from '~/types/year'
 import {
   Classroom,
