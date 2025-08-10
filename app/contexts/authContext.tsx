@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await authApi.get('/auth/me')
+        const res = await authApi.get<User>('/auth/me')
         setUser(res.data)
       } catch (err) {
         setUser(null)
@@ -43,10 +43,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (phone: string, password: string) => {
     setIsLoading(true)
     try {
-      // Send login request
-      const afterLogin = await authApi.post('/auth/login', { phone, password })
-      // Now fetch user info
-      const res = await authApi.get('/auth/me')
+      await authApi.post('/auth/login', { phone, password })
+      const res = await authApi.get<User>('/auth/me')
       setUser(res.data)
     } catch (err) {
       setUser(null)
@@ -59,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     setIsLoading(true)
     try {
-      await authApi('/auth/logout')
+      await authApi.post('/auth/logout')
       setUser(null)
     } finally {
       setIsLoading(false)

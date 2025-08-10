@@ -23,6 +23,21 @@ export default function AdminLayout() {
     if (!isLoading && !isAuthenticated) navigate('/login', { replace: true })
   }, [isAuthenticated, isLoading, navigate])
 
+    // Prevent rendering page content while loading auth status or unauthenticated
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        {/* Show spinner or loading state */}
+        <span className="loading loading-spinner loading-lg"></span>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    // Optionally render null or a placeholder while redirecting
+    return null
+  }
+
   const user = {
     firstName: 'John',
     lastName: 'Doe',
