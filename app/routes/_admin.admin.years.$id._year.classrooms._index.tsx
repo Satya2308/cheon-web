@@ -2,7 +2,7 @@ import { Link, useOutletContext } from '@remix-run/react'
 import type { MetaFunction } from '@vercel/remix'
 import { useEffect, useState } from 'react'
 import { EmptyState, LoadingUI } from '~/component'
-import { Eye, Pen, Person, Plus, Trash2 } from '~/icons'
+import { Eye, Pen, Plus, Trash2 } from '~/icons'
 import { Classroom } from '~/types/classroom'
 import { Year } from '~/types/year'
 import { authApi } from '~/utils/axios'
@@ -84,7 +84,6 @@ export default function ListClassroomPage() {
             <tr className="font-semibold">
               <th>ឈ្មោះ</th>
               <th>គ្រូបន្ទុក</th>
-              <th>ចំនួនគ្រូ</th>
               <th>សកម្មភាព</th>
             </tr>
           </thead>
@@ -93,7 +92,6 @@ export default function ListClassroomPage() {
               <tr key={item.id} className="hover">
                 <td>{item.name}</td>
                 <td>{item.teacher?.name ? item.teacher.name : '-'}</td>
-                <td>{`${item.assignedTimeslots}/${item.totalTimeslots}`}</td>
                 <td>
                   <div className="flex gap-1">
                     <Link

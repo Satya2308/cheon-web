@@ -18,16 +18,31 @@ export const meta: MetaFunction = () => {
   return [{ title: handle.title, backable: handle.backable }]
 }
 
+const DAYS = [
+  { key: 'monday', label: 'ចន្ទ' },
+  { key: 'tuesday', label: 'អង្គារ' },
+  { key: 'wednesday', label: 'ពុធ' },
+  { key: 'thursday', label: 'ព្រហស្បតិ៍' },
+  { key: 'friday', label: 'សុក្រ' },
+  { key: 'saturday', label: 'សៅរ៍' },
+] as const
+
+interface TimeslotWithAssignments extends Timeslot {
+  assignments: {
+    [key in typeof DAYS[number]['key']]: {
+      teacher: { id: number; name: string } | null
+    }
+  }
+}
+
 export default function ClassroomDetailPage() {
   const { year } = useOutletContext<{ year: Year }>()
   const { id, cid } = useParams()
   const [classroom, setClassroom] = useState<Classroom | null>(null)
-  const [timeslots, setTimeslots] = useState<Timeslot[] | null>(null)
+  const [timeslots, setTimeslots] = useState<TimeslotWithAssignments[] | null>(null)
   const [teachers, setTeachers] = useState<TeacherSearched[] | null>(null)
   const [loading, setLoading] = useState(true)
-  const [assigningTimeslot, setAssigningTimeslot] = useState<number | null>(
-    null
-  )
+  const [assigningCell, setAssigningCell] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -42,8 +57,8 @@ export default function ClassroomDetailPage() {
         setError(null)
         const [classroomRes, timeslotsRes, teachersRes] = await Promise.all([
           authApi.get<Classroom>(`/years/${year.id}/classrooms/${cid}`),
-          authApi.get<Timeslot[]>(
-            `/years/${year.id}/classrooms/${cid}/timeslots`
+          authApi.get<TimeslotWithAssignments[]>(
+            `/years/${year.id}/classrooms/${cid}/timetable`
           ),
           authApi.get<TeacherSearched[]>('/teachers/firstTwenty'),
         ])
@@ -70,12 +85,15 @@ export default function ClassroomDetailPage() {
 
   const handleTeacherAssignment = async (
     timeslotId: number,
+    day: typeof DAYS[number]['key'],
     teacher: TeacherSearched | null
   ) => {
+    const cellKey = `${timeslotId}-${day}`
     try {
-      setAssigningTimeslot(timeslotId)
+      setAssigningCell(cellKey)
       const data = {
         timeslotId,
+        day,
         classroomId: parseInt(cid!),
         teacherId: teacher?.id || null,
         action: teacher ? 'ASSIGN' : 'REMOVE',
@@ -84,15 +102,22 @@ export default function ClassroomDetailPage() {
         `/years/${year.id}/classrooms/${cid}/assign-teacher`,
         data
       )
+      
+      // Update local state
       setTimeslots(
         (prev) =>
           prev?.map((ts) =>
             ts.id === timeslotId
               ? {
                   ...ts,
-                  teacher: teacher
-                    ? { id: teacher.id, name: teacher.name }
-                    : null,
+                  assignments: {
+                    ...ts.assignments,
+                    [day]: {
+                      teacher: teacher
+                        ? { id: teacher.id, name: teacher.name }
+                        : null,
+                    },
+                  },
                 }
               : ts
           ) || null
@@ -107,13 +132,13 @@ export default function ClassroomDetailPage() {
         setError('An unexpected error occurred')
       }
     } finally {
-      setAssigningTimeslot(null)
+      setAssigningCell(null)
     }
   }
 
   return (
     <div className="modal modal-open">
-      <div className="modal-box max-w-4xl max-h-[90vh] flex flex-col p-0">
+      <div className="modal-box max-w-7xl max-h-[90vh] flex flex-col p-0">
         <div className="flex-shrink-0 p-6 pb-0">
           <Forehead
             title="ថ្នាក់រៀន"
@@ -154,42 +179,59 @@ export default function ClassroomDetailPage() {
                   </table>
                 </div>
               </div>
+
               {timeslots && timeslots.length > 0 && teachers && (
                 <div className="card bg-base-100">
                   <div className="card-body">
                     <h3 className="card-title text-lg mb-4">កាលវិភាគបង្រៀន</h3>
-                    <div className="grid gap-10">
-                      {timeslots.map((timeslot) => {
-                        const isSubmitting = assigningTimeslot === timeslot.id
-                        return (
-                          <div
-                            key={timeslot.id}
-                            className="flex items-center gap-4 p-4 border-t rounded-lg"
-                          >
-                            <div className="w-24 text-center">
-                              <span className="font-medium text-lg">
+                    <div className="overflow-x-auto">
+                      <table className="table table-bordered w-full">
+                        <thead>
+                          <tr>
+                            <th className="w-32 text-center bg-base-200">ម៉ោងរៀន</th>
+                            {DAYS.map((day) => (
+                              <th key={day.key} className="text-center bg-base-200 min-w-48">
+                                {day.label}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {timeslots.map((timeslot) => (
+                            <tr key={timeslot.id}>
+                              <td className="text-center font-medium bg-base-200 align-top py-4">
                                 {timeslot.label}
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <TeacherCombobox
-                                value={timeslot.teacher}
-                                onChange={(teacher) =>
-                                  handleTeacherAssignment(timeslot.id, teacher)
-                                }
-                                placeholder="ស្វែងរកគ្រូបង្រៀន"
-                                initialTeachers={teachers}
-                              />
-                            </div>
-                            {isSubmitting && (
-                              <div className="flex items-center gap-2 text-sm text-gray-500">
-                                <span className="loading loading-spinner loading-sm"></span>
-                                កំពុងរក្សាទុក...
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
+                              </td>
+                              {DAYS.map((day) => {
+                                const cellKey = `${timeslot.id}-${day.key}`
+                                const isSubmitting = assigningCell === cellKey
+                                const assignment = timeslot.assignments[day.key]
+                                
+                                return (
+                                  <td key={day.key} className="p-2 align-top">
+                                    <div className="flex flex-col gap-2">
+                                      <TeacherCombobox
+                                        value={assignment?.teacher || null}
+                                        onChange={(teacher) =>
+                                          handleTeacherAssignment(timeslot.id, day.key, teacher)
+                                        }
+                                        placeholder="ជ្រើសរើសគ្រូ"
+                                        initialTeachers={teachers}
+                                      />
+                                      {isSubmitting && (
+                                        <div className="flex items-center justify-center gap-1 text-xs text-gray-500">
+                                          <span className="loading loading-spinner loading-xs"></span>
+                                          <span>កំពុងរក្សាទុក...</span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </td>
+                                )
+                              })}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>

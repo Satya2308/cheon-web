@@ -5,8 +5,6 @@ export type Classroom = {
     id: number
     name: string
   } | null
-  assignedTimeslots: number
-  totalTimeslots: number
 }
 
 export type DetailClassroom = {
@@ -41,8 +39,4 @@ export type Timeslot = {
   label: string
   duration: string
   sortOrder: number
-  teacher: {
-    id: number
-    name: string
-  } | null
 }
