@@ -44,7 +44,7 @@ export default function TeacherCombobox({
             <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 ml-3" />
             <Combobox.Input
               className="w-full border-none py-3 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 focus:outline-none"
-              displayValue={(teacher: TeacherSearched) => teacher?.name || ''}
+              displayValue={(teacher: TeacherSearched) => teacher?.code || ''}
               onChange={(event) => setQuery(event.target.value)}
               placeholder={placeholder}
               autoComplete="off"
@@ -99,7 +99,7 @@ export default function TeacherCombobox({
                           selected ? 'font-bold' : 'font-normal'
                         }`}
                       >
-                        {teacher.name}
+                        {teacher.code}
                       </div>
                     </div>
                     {selected && (

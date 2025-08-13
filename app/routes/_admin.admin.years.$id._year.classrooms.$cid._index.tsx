@@ -30,7 +30,7 @@ const DAYS = [
 interface TimeslotWithAssignments extends Timeslot {
   assignments: {
     [key in typeof DAYS[number]['key']]: {
-      teacher: { id: number; name: string } | null
+      teacher: { id: number; code: string } | null
     }
   }
 }
@@ -114,7 +114,7 @@ export default function ClassroomDetailPage() {
                     ...ts.assignments,
                     [day]: {
                       teacher: teacher
-                        ? { id: teacher.id, name: teacher.name }
+                        ? { id: teacher.id, code: teacher.code }
                         : null,
                     },
                   },
@@ -138,7 +138,7 @@ export default function ClassroomDetailPage() {
 
   return (
     <div className="modal modal-open">
-      <div className="modal-box max-w-7xl max-h-[90vh] flex flex-col p-0">
+      <div className="modal-box max-w-[1400px] max-h-[90vh] flex flex-col p-0">
         <div className="flex-shrink-0 p-6 pb-0">
           <Forehead
             title="ថ្នាក់រៀន"
@@ -170,8 +170,8 @@ export default function ClassroomDetailPage() {
                       <tr>
                         <td>គ្រូបន្ទុកថ្នាក់</td>
                         <td>
-                          {classroom.teacher?.name
-                            ? classroom.teacher.name
+                          {classroom.teacher?.code
+                            ? classroom.teacher.code
                             : '-'}
                         </td>
                       </tr>

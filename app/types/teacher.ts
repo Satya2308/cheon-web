@@ -14,7 +14,7 @@ export type Teacher = {
 
 export type TeacherSearched = {
   id: number
-  name: string
+  code: string
 }
 
 export type ValidationErrorTeacher = {

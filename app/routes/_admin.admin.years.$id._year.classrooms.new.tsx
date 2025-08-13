@@ -125,7 +125,7 @@ export default function CreateClassroomPage() {
                       <TeacherCombobox
                         value={selectedTeacher}
                         onChange={setSelectedTeacher}
-                        placeholder="ស្វែងរកតាមឈ្មោះ"
+                        placeholder="ស្វែងរកតាមលេខកូដ"
                         initialTeachers={teachers}
                       />
                       <input

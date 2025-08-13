@@ -3,7 +3,7 @@ export type Classroom = {
   name: string
   teacher: {
     id: number
-    name: string
+    code: string
   } | null
 }
 
@@ -12,7 +12,7 @@ export type DetailClassroom = {
   name: string
   teacher: {
     id: number
-    name: string
+    code: string
   } | null
 }
 
