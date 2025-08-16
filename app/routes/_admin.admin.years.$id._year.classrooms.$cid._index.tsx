@@ -30,7 +30,7 @@ const DAYS = [
 interface TimeslotWithAssignments extends Timeslot {
   assignments: {
     [key in typeof DAYS[number]['key']]: {
-      teacher: { id: number; code: string } | null
+      teacher: { id: number; name: string, code: string } | null
     }
   }
 }
@@ -114,7 +114,7 @@ export default function ClassroomDetailPage() {
                     ...ts.assignments,
                     [day]: {
                       teacher: teacher
-                        ? { id: teacher.id, code: teacher.code }
+                        ? { id: teacher.id, name: teacher.name,code: teacher.code }
                         : null,
                     },
                   },
@@ -171,7 +171,7 @@ export default function ClassroomDetailPage() {
                         <td>គ្រូបន្ទុកថ្នាក់</td>
                         <td>
                           {classroom.teacher?.code
-                            ? classroom.teacher.code
+                            ? `${classroom.teacher.code}(${classroom.teacher.name})`
                             : '-'}
                         </td>
                       </tr>

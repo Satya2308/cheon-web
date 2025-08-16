@@ -91,7 +91,7 @@ export default function ListClassroomPage() {
             {classrooms.map((item) => (
               <tr key={item.id} className="hover">
                 <td>{item.name}</td>
-                <td>{item.teacher?.code ? item.teacher.code : '-'}</td>
+                <td>{item.teacher?.code ? `${item.teacher.code}(${item.teacher.name})` : '-'}</td>
                 <td>
                   <div className="flex gap-1">
                     <Link
