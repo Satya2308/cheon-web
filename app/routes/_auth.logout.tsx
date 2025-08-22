@@ -8,7 +8,6 @@ export default function Logout() {
   const navigate = useNavigate()
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  console.log("isAuthenticated", isAuthenticated)
 
   useEffect(() => {
     async function doLogout() {
