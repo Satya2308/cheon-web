@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await authApi.get<User>('/auth/me')
       setUser(res.data)
     } catch (err) {
-      console.log("err", err.response.data)
       setUser(null)
       throw err
     } finally {
