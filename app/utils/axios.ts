@@ -14,7 +14,12 @@ authApi.interceptors.response.use(
   (res) => res,
   async (err) => {
     const originalRequest = err.config
-    if (err.response?.status === 401 && !originalRequest._retry) {
+    // Skip interceptor for /auth/login
+    if (
+      err.response?.status === 401 &&
+      !originalRequest._retry &&
+      originalRequest.url !== '/auth/login'
+    ) {
       originalRequest._retry = true
       try {
         await refreshClient.post('/auth/refresh')
