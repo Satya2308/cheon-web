@@ -12,6 +12,7 @@ import ChevronRight from './chevronRight'
 import X from './x'
 import Year from './year'
 import Person from './person'
+import Download from './download'
 
 export {
   Teacher,
@@ -28,4 +29,5 @@ export {
   X,
   Year,
   Person,
+  Download,
 }

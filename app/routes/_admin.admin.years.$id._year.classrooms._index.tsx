@@ -1,7 +1,7 @@
 import { Link, useOutletContext } from '@remix-run/react'
 import type { MetaFunction } from '@vercel/remix'
 import { useEffect, useState } from 'react'
-import { EmptyState, LoadingUI } from '~/component'
+import { EmptyState, ExpClassScheduleBtn, LoadingUI } from '~/component'
 import { Eye, Pen, Plus, Trash2 } from '~/icons'
 import { Classroom } from '~/types/classroom'
 import { Year } from '~/types/year'
@@ -91,7 +91,11 @@ export default function ListClassroomPage() {
             {classrooms.map((item) => (
               <tr key={item.id} className="hover">
                 <td>{item.name}</td>
-                <td>{item.teacher?.code ? `${item.teacher.code}(${item.teacher.name})` : '-'}</td>
+                <td>
+                  {item.teacher?.code
+                    ? `${item.teacher.code}(${item.teacher.name})`
+                    : '-'}
+                </td>
                 <td>
                   <div className="flex gap-1">
                     <Link
@@ -112,6 +116,14 @@ export default function ListClassroomPage() {
                     >
                       <Trash2 size={16} />
                     </Link>
+                    <div className="flex gap-2 justify-center">
+                      <ExpClassScheduleBtn
+                        classroomId={item.id}
+                        className={item.name}
+                        yearId={parseInt(year.id)}
+                        yearName={year.name}
+                      />
+                    </div>
                   </div>
                 </td>
               </tr>

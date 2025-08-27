@@ -29,8 +29,8 @@ const DAYS = [
 
 interface TimeslotWithAssignments extends Timeslot {
   assignments: {
-    [key in typeof DAYS[number]['key']]: {
-      teacher: { id: number; name: string, code: string } | null
+    [key in (typeof DAYS)[number]['key']]: {
+      teacher: { id: number; name: string; code: string } | null
     }
   }
 }
@@ -39,7 +39,9 @@ export default function ClassroomDetailPage() {
   const { year } = useOutletContext<{ year: Year }>()
   const { id, cid } = useParams()
   const [classroom, setClassroom] = useState<Classroom | null>(null)
-  const [timeslots, setTimeslots] = useState<TimeslotWithAssignments[] | null>(null)
+  const [timeslots, setTimeslots] = useState<TimeslotWithAssignments[] | null>(
+    null
+  )
   const [teachers, setTeachers] = useState<TeacherSearched[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [assigningCell, setAssigningCell] = useState<string | null>(null)
@@ -62,7 +64,7 @@ export default function ClassroomDetailPage() {
           ),
           authApi.get<TeacherSearched[]>('/teachers/firstTwenty'),
         ])
-
+        console.log(timeslotsRes.data)
         setClassroom(classroomRes.data)
         setTimeslots(timeslotsRes.data)
         setTeachers(teachersRes.data)
@@ -85,7 +87,7 @@ export default function ClassroomDetailPage() {
 
   const handleTeacherAssignment = async (
     timeslotId: number,
-    day: typeof DAYS[number]['key'],
+    day: (typeof DAYS)[number]['key'],
     teacher: TeacherSearched | null
   ) => {
     const cellKey = `${timeslotId}-${day}`
@@ -102,7 +104,7 @@ export default function ClassroomDetailPage() {
         `/years/${year.id}/classrooms/${cid}/assign-teacher`,
         data
       )
-      
+
       // Update local state
       setTimeslots(
         (prev) =>
@@ -114,7 +116,11 @@ export default function ClassroomDetailPage() {
                     ...ts.assignments,
                     [day]: {
                       teacher: teacher
-                        ? { id: teacher.id, name: teacher.name,code: teacher.code }
+                        ? {
+                            id: teacher.id,
+                            name: teacher.name,
+                            code: teacher.code,
+                          }
                         : null,
                     },
                   },
@@ -188,9 +194,14 @@ export default function ClassroomDetailPage() {
                       <table className="table table-bordered w-full">
                         <thead>
                           <tr>
-                            <th className="w-32 text-center bg-base-200">ម៉ោងរៀន</th>
+                            <th className="w-32 text-center bg-base-200">
+                              ម៉ោងរៀន
+                            </th>
                             {DAYS.map((day) => (
-                              <th key={day.key} className="text-center bg-base-200 min-w-48">
+                              <th
+                                key={day.key}
+                                className="text-center bg-base-200 min-w-48"
+                              >
                                 {day.label}
                               </th>
                             ))}
@@ -206,14 +217,18 @@ export default function ClassroomDetailPage() {
                                 const cellKey = `${timeslot.id}-${day.key}`
                                 const isSubmitting = assigningCell === cellKey
                                 const assignment = timeslot.assignments[day.key]
-                                
+
                                 return (
                                   <td key={day.key} className="p-2 align-top">
                                     <div className="flex flex-col gap-2">
                                       <TeacherCombobox
                                         value={assignment?.teacher || null}
                                         onChange={(teacher) =>
-                                          handleTeacherAssignment(timeslot.id, day.key, teacher)
+                                          handleTeacherAssignment(
+                                            timeslot.id,
+                                            day.key,
+                                            teacher
+                                          )
                                         }
                                         placeholder="ជ្រើសរើសគ្រូ"
                                         initialTeachers={teachers}
