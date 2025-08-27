@@ -5,6 +5,8 @@ const baseSchema = z.object({
   name: z.string().min(1, 'ត្រូវបំពេញ'),
   classDuration: z.enum(['1_hour', '1_5_hour']),
   isActive: z.coerce.boolean(),
+  startDateKh: z.string().min(1, 'ត្រូវបំពេញ'),
+  startDateEng: z.string().min(1, 'ត្រូវបំពេញ'),
 })
 
 export async function validateCreateYear(data: FormData) {

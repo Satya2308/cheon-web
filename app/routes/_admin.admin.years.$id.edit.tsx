@@ -145,6 +145,31 @@ export default function UpdateYearPage() {
                   {errorObj?.classDuration &&
                     fieldError(errorObj.classDuration[0])}
                 </fieldset>
+                <fieldset className="fieldset" disabled={submitting}>
+                  <legend className="fieldset-legend leading-relaxed text-base">
+                    ថ្ងៃចាប់ផ្តើមខ្មែរ
+                  </legend>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    name="startDateKh"
+                    defaultValue={year.startDateKh}
+                  />
+                  {errorObj?.startDateKh && fieldError(errorObj.startDateKh[0])}
+                </fieldset>
+                <fieldset className="fieldset" disabled={submitting}>
+                  <legend className="fieldset-legend leading-relaxed text-base">
+                    ថ្ងៃចាប់ផ្តើមអង្លេស
+                  </legend>
+                  <input
+                    type="text"
+                    className="input w-full"
+                    name="startDateEng"
+                    defaultValue={year.startDateEng}
+                  />
+                  {errorObj?.startDateEng &&
+                    fieldError(errorObj.startDateEng[0])}
+                </fieldset>
                 <input type="hidden" name="isActive" value={true.toString()} />
               </div>
               <div className="mt-10 flex gap-2">
