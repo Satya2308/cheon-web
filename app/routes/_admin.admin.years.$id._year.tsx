@@ -57,6 +57,10 @@ export default function AdminYearLayout() {
       title: 'ថ្នាក់រៀន',
       href: `${basePath}classrooms`,
     },
+    {
+      title: 'កាលវិភាគគ្រូ',
+      href: `${basePath}teachers`,
+    },
   ]
 
   const isActive = (path: string) => {
@@ -93,7 +97,7 @@ export default function AdminYearLayout() {
           </div>
           <div className="flex gap-2">
             <aside className="w-48">
-              <ul className="menu w-full">
+              <ul className="menu w-full space-y-4">
                 {items.map((item) => (
                   <li key={item.title} className="text-lg font-semibold">
                     <Link

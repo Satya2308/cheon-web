@@ -4,20 +4,21 @@ import { authApi } from '~/utils/axios'
 import { toast } from './ui/toast'
 
 interface Props {
-  classroomId: number
-  classroomName: string
+  teacherId?: number
+  teacherName?: string
   yearId: number
   yearName: string
+  disable: boolean
 }
 
-export function ExpClassScheduleBtn(props: Props) {
-  const { classroomId, yearId, yearName, classroomName } = props
+export function ExpTeacherScheduleBtn(props: Props) {
+  const { teacherId, yearId, yearName, disable = false } = props
   const [isExporting, setIsExporting] = useState(false)
 
   const handleExport = async () => {
     try {
       setIsExporting(true)
-      const apiUrl = `/years/${yearId}/classrooms/${classroomId}/export`
+      const apiUrl = `/years/${yearId}/teachers/${teacherId}/export`
       const res = await authApi.get(apiUrl, {
         responseType: 'blob', // IMPORTANT for Excel
         headers: {
@@ -29,7 +30,7 @@ export function ExpClassScheduleBtn(props: Props) {
       const url = window.URL.createObjectURL(res.data)
       const link = document.createElement('a')
       link.href = url
-      link.download = `Timetable_${yearName}_${classroomName}.xlsx`
+      link.download = `Timetable_${yearName}.xlsx`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
@@ -45,7 +46,7 @@ export function ExpClassScheduleBtn(props: Props) {
   return (
     <button
       onClick={handleExport}
-      disabled={isExporting}
+      disabled={disable || isExporting}
       className="btn btn-sm gap-2"
     >
       {isExporting ? (

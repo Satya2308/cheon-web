@@ -119,7 +119,7 @@ export default function ListClassroomPage() {
                     <div className="flex gap-2 justify-center">
                       <ExpClassScheduleBtn
                         classroomId={item.id}
-                        className={item.name}
+                        classroomName={item.name}
                         yearId={parseInt(year.id)}
                         yearName={year.name}
                       />

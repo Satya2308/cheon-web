@@ -2,6 +2,7 @@ import EmptyState from './admin/empty'
 import Forehead from './admin/forehead'
 import SideMenu from './admin/menu'
 import { ExpClassScheduleBtn } from './exportClassSchedule'
+import { ExpTeacherScheduleBtn } from './exportTeacherSchedule'
 import LoadingUI from './ui/loading'
 import Modal from './ui/modal'
 import Pagination from './ui/pagination'
@@ -16,4 +17,5 @@ export {
   toast,
   Forehead,
   ExpClassScheduleBtn,
+  ExpTeacherScheduleBtn,
 }
